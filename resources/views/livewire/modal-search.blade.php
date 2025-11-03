@@ -107,7 +107,13 @@
                                 wire:click="abrirDetalhesLivro({{ $livro->id }})"
                                 class="flex items-center p-3 hover:bg-gray-100 rounded-lg transition-colors w-full text-left"
                             >
-                                <img src="{{ $livro->url_capa ?? 'https://via.placeholder.com/40x60' }}"
+
+                                    @php
+                                        $imagemUrl = $livro->formatos
+                                        ->where('media_type', 'image/jpeg')
+                                        ->first()?->url;
+                                    @endphp
+                                <img src="{{ $imagemUrl ?? 'https://via.placeholder.com/40x60' }}"
                                      alt="Capa de {{ $livro->titulo }}"
                                      class="w-10 h-14 object-cover rounded shadow-md mr-4 flex-shrink-0">
 
