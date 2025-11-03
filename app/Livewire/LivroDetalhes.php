@@ -19,6 +19,8 @@ class LivroDetalhes extends Component
     public $mainGenres = [];
     public $allShelves = [];
 
+    public $conteudoLivro;
+
     #[On('openLivroModal')]
     public function mostrarDetalhes($livroId)
     {
@@ -75,9 +77,24 @@ class LivroDetalhes extends Component
         $this->showModal = true;
     }
 
-    public function abrirLivro($livroId){
+    public function abrirLivro()
+    {
+        $url = $this->livro->formatos
+            ->where('media_type', 'text/html')
+            ->first()?->url;
+        if ($url) {
+            try {
+                $conteudoHtml = file_get_contents($url);
+                $this->conteudoLivro = $conteudoHtml;
 
-        dd($livroId);
+                $this->dispatch('livroCarregado', conteudo: $this->conteudoLivro);
+
+            } catch (\Exception $e) {
+                $this->conteudoLivro = "Erro ao carregar o livro: " . $e->getMessage();
+            }
+        } else {
+            $this->conteudoLivro = "URL do livro não encontrada.";
+        }
     }
 
     public function setRating($newRating)

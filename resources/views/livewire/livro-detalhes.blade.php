@@ -161,10 +161,11 @@
                     >
                         Fechar
                     </button>
-                    <button wire:click="abrirLivro({{ $livro->id }})" class="px-6 py-2 bg-biblioteca-500 text-white rounded-lg hover:bg-biblioteca-600 transition-colors">
-                    <i class="bi bi-book mr-2"></i>
-                        Ler Livro
-                    </button>
+                        <button wire:click="abrirLivro" class="bg-blue-500 text-white px-4 py-2 rounded">
+                            Ler Livro
+                        </button>
+                        @livewire('livro-texto')
+                    </div>
                 </div>
             </div>
         </div>
