@@ -84,11 +84,11 @@ class CommumFunctions
         }
     }
 
-
     public function isFavorite($livroId)
     {
         return LivroFavorito::where('livro_id', $livroId)
             ->where('user_id', $this->idUsuario)
             ->exists();
     }
+
 }

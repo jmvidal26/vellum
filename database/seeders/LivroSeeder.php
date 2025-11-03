@@ -69,7 +69,16 @@ class LivroSeeder extends Seeder
                             'url' => $url
                         ]);
                     }
+
+                    if(str_contains($mediaType, 'text/html')){
+                        Formato::firstOrCreate([
+                            'livro_id' => $livroCriado->id,
+                            'media_type' => $mediaType,
+                            'url' => $url
+                        ]);
+                    }
                 }
+
             }
         }
     }

@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Livro;
+use App\Services\CommumFunctions;
 use Livewire\Component;
 use Livewire\Attributes\On;
 
@@ -20,9 +21,14 @@ class LivroDetalhes extends Component
             'estantes:id,nome',
             'formatos:id,url,media_type,livro_id'
         ])->findOrFail($livroId);
-        
+
         $this->showModal = true;
-    }   
+    }
+
+    public function abrirLivro($livroId){
+
+        dd($livroId);
+    }
 
     public function closeModal()
     {
