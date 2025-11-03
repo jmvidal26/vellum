@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Livro;
 use App\Models\LivroAvaliacao;
 use App\Models\LivroFavorito;
+use App\Services\CommumFunctions;
 use Livewire\Component;
 use Livewire\Attributes\On;
 
@@ -72,6 +73,11 @@ class LivroDetalhes extends Component
         }
 
         $this->showModal = true;
+    }
+
+    public function abrirLivro($livroId){
+
+        dd($livroId);
     }
 
     public function setRating($newRating)

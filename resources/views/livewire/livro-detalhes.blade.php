@@ -40,12 +40,16 @@
                     </button>
                 </div>
 
-                <div class="p-6 md:p-8 overflow-y-auto flex-1">
-                    <div class="flex flex-col md:flex-row gap-6 md:gap-8 mb-6">
-
-                        <div class="flex-shrink-0 w-full md:w-56 mx-auto md:mx-0">
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+                    @php
+                    $formatos = $livro->formatos;
+                    $imagem = $formatos->firstWhere('media_type', 'image/jpeg');
+                    $url = $imagem->url;
+                    @endphp
+                    <div class="flex flex-col md:flex-row gap-6 mb-6">
+                        <div class="flex-shrink-0">
                             @if($livro->formatos->first()->url ?? null)
-                                <img src="{{ $livro->formatos->first()->url }}"
+                                <img src="{{ $url }}"
                                      alt="Capa do livro {{ $livro->titulo }}"
                                      class="w-56 aspect-[2/3] object-cover rounded-lg shadow-lg mx-auto">
                             @else
@@ -157,8 +161,8 @@
                     >
                         Fechar
                     </button>
-                    <button class="px-6 py-2 bg-biblioteca-700 text-white rounded-lg hover:bg-biblioteca-800 transition-colors font-medium flex items-center gap-2">
-                        <i class="bi bi-book"></i>
+                    <button wire:click="abrirLivro({{ $livro->id }})" class="px-6 py-2 bg-biblioteca-500 text-white rounded-lg hover:bg-biblioteca-600 transition-colors">
+                    <i class="bi bi-book mr-2"></i>
                         Ler Livro
                     </button>
                 </div>

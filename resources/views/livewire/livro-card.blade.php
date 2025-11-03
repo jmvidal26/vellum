@@ -2,8 +2,16 @@
     <div class="block h-full group relative transition-all duration-300">
         <div class="bg-white rounded-lg shadow-md overflow-visible group-hover:shadow-lg transition-shadow duration-300 h-full {{ $size === 'large' ? 'max-w-xs' : '' }}">
 
-            @if(($livro['formatos'][0]['url'] ?? $livro->formatos->first()->url ?? null))
-                <img src="{{ $livro['formatos'][0]['url'] ?? $livro->formatos->first()->url }}"
+            @php
+                $formatos = is_array($livro['formatos'] ?? null) ? $livro['formatos'] : $livro->formatos;
+
+                $formatoImagem = collect($formatos)->firstWhere('media_type', 'image/jpeg');
+
+                $urlCapa = $formatoImagem['url'] ?? null;
+            @endphp
+
+            @if($urlCapa)
+                <img src="{{ $urlCapa }}"
                      alt="Capa do livro {{ $livro['titulo'] ?? $livro->titulo }}"
                      class="w-full object-cover aspect-[2/3] rounded-t-lg">
             @else
@@ -11,6 +19,7 @@
                     <i class="bi bi-book text-4xl text-biblioteca-400"></i>
                 </div>
             @endif
+
 
             <div class="p-4 {{ $size === 'large' ? 'space-y-2' : '' }}">
                 <h4 class="font-bold text-biblioteca-800 {{ $size === 'large' ? 'text-lg' : 'text-md' }} truncate"
