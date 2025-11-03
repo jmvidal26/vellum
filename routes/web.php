@@ -27,7 +27,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/minha_estante', MinhaEstante::class)
         ->name('minha_estante');
 
-
+    Route::get('/livros/{livroId}', \App\Livewire\LivroDetalhes::class)
+        ->name('livros.mostrar');
 
     Route::view('profile', 'profile')
         ->middleware(['auth'])

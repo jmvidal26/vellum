@@ -105,4 +105,14 @@
         </main>
     </div>
     <livewire:livro-detalhes />
+
+    @if($livroIdProcurado)
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(() => {
+                    Livewire.dispatch('openLivroModal', {livroId: {{ $livroIdProcurado }}});
+                }, 50);
+            });
+        </script>
+    @endif
 </div>

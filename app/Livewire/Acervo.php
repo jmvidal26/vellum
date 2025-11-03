@@ -9,6 +9,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
+use App\Livewire\LivroDetalhes;
 
 #[Layout('components.layouts.menu')]
 #[Title('Acervo Digital')]
@@ -17,26 +18,24 @@ class Acervo extends Component
     use WithPagination;
 
     #[Url(as: 'search')]
-    /** @var string */
     public $busca = '';
 
-    /** @var string */
     public $ordenar = 'populares';
 
-    /** @var array */
     public $generosSelecionados = [];
 
-    /** @var array */
     public $autoresSelecionados = [];
 
-    /** @var array */
     public $generos;
 
-    /** @var \Illuminate\Database\Eloquent\Collection */
     public $autores;
+
+    public $livroIdProcurado;
 
     public function mount()
     {
+        $this->livroIdProcurado = request()->query('livroId');
+
         $mainGenreKeywords = [
             'Romance' => 'romance',
             'Fantasia' => 'fantasia',
@@ -70,6 +69,13 @@ class Acervo extends Component
             ->orderBy('nome', 'asc')
             ->get();
     }
+    public function abrirLivroModalSeNecessario()
+    {
+        if ($this->livroIdProcurado) {
+            $this->dispatch('openLivroModal', livroId: $this->livroIdProcurado);
+            $this->livroIdProcurado = null;
+        }
+    }
 
     public function updatedGenerosSelecionados():void
     {
@@ -97,6 +103,8 @@ class Acervo extends Component
 
     public function render()
     {
+
+
         $query = Livro::query()
             ->with(['autores:id,nome', 'formatos:id,url,media_type,livro_id']);
 

@@ -1,4 +1,6 @@
-<div
+<div>
+@if($isOpen)
+    <div
     x-data="{}"
     @focus-search-input.window="$nextTick(() => $refs.modalSearchInput.focus())"
 >
@@ -63,6 +65,7 @@
                     <i class="bi bi-arrow-repeat animate-spin mr-2"></i> Buscando...
                 </div>
 
+
                 <div wire:loading.remove wire:target="busca">
                     @if (strlen($busca) < 3)
                         <div class="space-y-4">
@@ -100,10 +103,12 @@
                         </div>
                     @else
                         @forelse ($results as $livro)
-                            <a href="#" {{-- Substitua pelo seu route('livro.detalhes', $livro->id) --}}
-                            class="flex items-center p-3 hover:bg-gray-100 rounded-lg transition-colors">
-
-                                <img src="{{ $livro->url_capa ?? 'https://via.placeholder.com/40x60' }}" alt="Capa de {{ $livro->titulo }}"
+                            <button
+                                wire:click="abrirDetalhesLivro({{ $livro->id }})"
+                                class="flex items-center p-3 hover:bg-gray-100 rounded-lg transition-colors w-full text-left"
+                            >
+                                <img src="{{ $livro->url_capa ?? 'https://via.placeholder.com/40x60' }}"
+                                     alt="Capa de {{ $livro->titulo }}"
                                      class="w-10 h-14 object-cover rounded shadow-md mr-4 flex-shrink-0">
 
                                 <div class="text-gray-800 overflow-hidden">
@@ -112,8 +117,9 @@
                                         {{ $livro->autores->pluck('nome')->implode(', ') }}
                                     </p>
                                 </div>
-                            </a>
+                            </button>
                         @empty
+
                             @if (strlen($busca) >= 3)
                                 <div class="p-3 text-center text-gray-500">
                                     Nenhum resultado encontrado para "{{ $busca }}".
@@ -125,4 +131,6 @@
             </div>
         </div>
     </div>
+</div>
+@endif
 </div>
