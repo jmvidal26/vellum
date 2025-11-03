@@ -15,8 +15,6 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" />
 
-    @livewireStyles
-
     <style>
         [x-cloak] { display: none !important; }
         body { font-family: 'Georgia', serif; }
@@ -39,8 +37,6 @@
 <body class="bg-biblioteca-50 text-biblioteca-900 min-h-screen flex flex-col">
 
     {{ $slot }}
-
-    @livewireScripts
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 </body>

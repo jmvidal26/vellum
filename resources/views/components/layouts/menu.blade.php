@@ -1,6 +1,6 @@
 <x-layouts.app :title="$title">
 
-    <header class="bg-biblioteca-800 text-white shadow-lg sticky top-0 z-50">
+    <header class="bg-biblioteca-800 text-white shadow-lg sticky top-0 z-50" x-data>
         <div class="container mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
                 <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 group">
@@ -37,7 +37,13 @@
                             </a>
                         </li>
 
-                        <li><a href="#" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2"><i class="bi bi-search mr-2"></i>Explorar</a></li>
+                        <li>
+                            <button
+                                @click.prevent="$dispatch('open-search-modal')"
+                                class="nav-link font-medium text-biblioteca-100 hover:text-white py-2">
+                                <i class="bi bi-search mr-2"></i>Explorar
+                            </button>
+                        </li>
                         <li><a href="{{ route('minha_estante') }}" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2"><i class="bi bi-bookmark mr-2"></i>Minha Estante</a></li>
 
                         <li class="relative" x-data="{ open: false }">
@@ -47,10 +53,10 @@
                                     <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="{{ auth()->user()->name }}" class="h-8 w-8 rounded-full object-cover">
                                 @else
                                     <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-biblioteca-700">
-                                        <span class="text-sm font-medium text-white">
-                                            {{ substr(auth()->user()->name, 0, 1) }}
-                                        </span>
+                                    <span class="text-sm font-medium text-white">
+                                        {{ substr(auth()->user()->name, 0, 1) }}
                                     </span>
+                                </span>
                                 @endif
 
                                 <span>{{ auth()->user()->name }}</span>
@@ -99,11 +105,20 @@
                         </a>
                     </li>
 
-                    <li><a href="#" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 block"><i class="bi bi-search mr-2"></i>Explorar</a></li>
-                    <li><a href="#" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 block"><i class="bi bi-bookmark mr-2"></i>Minha Estante</a></li>
-                    <li><a href="#" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 block"><i class="bi bi-person mr-2"></i>Perfil</a></li>
+                    <li>
+                        <button
+                            @click.prevent="$dispatch('open-search-modal')"
+                            class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 block w-full text-left">
+                            <i class="bi bi-search mr-2"></i>Explorar
+                        </button>
+                    </li>
+                    <li><a href="{{ route('minha_estante') }}" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 block"><i class="bi bi-bookmark mr-2"></i>Minha Estante</a></li>
+                    <li><a href="{{ route('profile') }}" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 block"><i class="bi bi-person mr-2"></i>Perfil</a></li>
                 </ul>
             </div>
+
+            <livewire:modal-search />
+
         </div>
     </header>
 

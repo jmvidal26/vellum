@@ -1,5 +1,5 @@
 <div
-    x-data="{ isVisible: @entangle('showModal') }"
+    x-data="{ isVisible: $wire.entangle('showModal') }"
     x-init="$watch('isVisible', (value) => {
         if (value) {
             document.body.classList.add('overflow-hidden');
@@ -77,7 +77,7 @@
 
                             <div class="mb-6">
                                 <h3 class="text-xl font-bold text-biblioteca-800 mb-2">Sua Avaliação</h3>
-                                <div x-data="{ hoverRating: 0, currentRating: @entangle('userRating') }"
+                                <div x-data="{ hoverRating: 0, currentRating: $wire.entangle('userRating') }"
                                      @mouseleave="hoverRating = 0"
                                      class="flex items-center gap-1"
                                      title="Sua avaliação: {{ $userRating > 0 ? $userRating : 'Nenhuma' }}">

@@ -8,6 +8,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 
 #[Layout('components.layouts.menu')]
 #[Title('Acervo Digital')]
@@ -15,6 +16,7 @@ class Acervo extends Component
 {
     use WithPagination;
 
+    #[Url(as: 'search')]
     /** @var string */
     public $busca = '';
 
