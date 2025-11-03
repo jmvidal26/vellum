@@ -13,22 +13,16 @@ use Livewire\Component;
 
 #[Layout('components.layouts.menu')]
 #[Title('Tela Inicial')]
+#[On('favoritoAtualizado')]
 class Dashboard extends Component
 {
     public $topDownloads;
-
     public $topRomances;
-
     public $topFantasias;
-
     public $topAventuras;
-
     public $topHorror;
-
     public $topFiccao;
-
     public $topHistoria;
-
     public $meusFavoritos;
 
     public function mount()
@@ -71,6 +65,31 @@ class Dashboard extends Component
         }
     }
 
+    public function refreshFavoritos()
+    {
+        $this->carregarFavoritos($this->topDownloads);
+        $this->carregarFavoritos($this->topRomances);
+        $this->carregarFavoritos($this->topFantasias);
+        $this->carregarFavoritos($this->topAventuras);
+        $this->carregarFavoritos($this->topHorror);
+        $this->carregarFavoritos($this->topFiccao);
+        $this->carregarFavoritos($this->topHistoria);
+
+        if (auth()->check()) {
+            $favoritoIds = LivroFavorito::where('user_id', auth()->id())->pluck('livro_id');
+            $this->meusFavoritos = Livro::select('id', 'livros.titulo', 'livros.numero_downloads')
+                ->with([
+                    'autores:id,nome',
+                    'assuntos:id,nome',
+                    'estantes:id,nome',
+                    'formatos:id,url,media_type,livro_id'
+                ])
+                ->whereIn('id', $favoritoIds)
+                ->get();
+            $this->carregarFavoritos($this->meusFavoritos);
+        }
+    }
+
     private function carregarFavoritos($livros){
         if (auth()->check()){
             $commomFunctions = app(CommumFunctions::class);
@@ -104,3 +123,4 @@ class Dashboard extends Component
         return view('livewire.dashboard');
     }
 }
+

@@ -3,22 +3,24 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\LivroAvaliacao;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        //
+        LivroAvaliacao::saved(function ($avaliacao) {
+            $avaliacao->livro->updateRating();
+        });
+
+        LivroAvaliacao::deleted(function ($avaliacao) {
+            $avaliacao->livro->updateRating();
+        });
     }
 }
+

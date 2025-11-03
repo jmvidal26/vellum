@@ -39,4 +39,15 @@ class Livro extends Model
     {
         return $this->hasMany(ClubeSessao::class);
     }
+
+    public function avaliacoes()
+    {
+        return $this->hasMany(LivroAvaliacao::class);
+    }
+
+    public function updateRating()
+    {
+        $this->rating = round($this->avaliacoes()->avg('rating'), 1) ?? 0.0;
+        $this->save();
+    }
 }

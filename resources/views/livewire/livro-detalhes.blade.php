@@ -1,64 +1,164 @@
-<div>
+<div
+    x-data="{ isVisible: @entangle('showModal') }"
+    x-init="$watch('isVisible', (value) => {
+        if (value) {
+            document.body.classList.add('overflow-hidden');
+        } else {
+            document.body.classList.remove('overflow-hidden');
+        }
+    })"
+>
     @if($showModal && $livro)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            
-            <div class="fixed inset-0 bg-gray-900 bg-opacity-75" wire:click="closeModal"></div>
 
-            <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden relative z-10">
-                <div class="flex justify-between items-center p-6 border-b">
-                    <h2 class="text-2xl font-bold text-gray-800">{{ $livro->titulo }}</h2>
-                    <button wire:click="closeModal" class="text-gray-500 hover:text-gray-700">
-                        <i class="bi bi-x-lg text-xl"></i>
+            <div class="fixed inset-0 bg-black bg-opacity-70"></div>
+            <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden relative z-10 shadow-xl flex flex-col">
+
+                <div class="flex justify-between items-start p-6 border-b border-biblioteca-200 flex-shrink-0">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-biblioteca-800">{{ $livro->titulo }}</h2>
+
+                        <div class="flex items-center gap-2 mt-2" title="Média de {{ $livro->rating }} de 5">
+                            @php $rating = $livro->rating; @endphp
+                            <div class="flex items-center">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    @if ($i <= floor($rating))
+                                        <i class="bi bi-star-fill text-yellow-500"></i>
+                                    @elseif ($i - 0.5 <= $rating)
+                                        <i class="bi bi-star-half text-yellow-500"></i>
+                                    @else
+                                        <i class="bi bi-star text-yellow-500"></i>
+                                    @endif
+                                @endfor
+                            </div>
+                            <span class="text-biblioteca-600 font-medium">{{ $rating }}</span>
+                            <span class="text-biblioteca-500 text-sm">({{ $livro->avaliacoes->count() }} avaliações)</span>
+                        </div>
+                    </div>
+                    <button wire:click="closeModal" class="text-biblioteca-500 hover:text-biblioteca-700 transition-colors ml-4">
+                        <i class="bi bi-x-lg text-2xl"></i>
                     </button>
                 </div>
 
-                <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-                    <div class="flex flex-col md:flex-row gap-6 mb-6">
-                        <div class="flex-shrink-0">
+                <div class="p-6 md:p-8 overflow-y-auto flex-1">
+                    <div class="flex flex-col md:flex-row gap-6 md:gap-8 mb-6">
+
+                        <div class="flex-shrink-0 w-full md:w-56 mx-auto md:mx-0">
                             @if($livro->formatos->first()->url ?? null)
-                                <img src="{{ $livro->formatos->first()->url }}" 
+                                <img src="{{ $livro->formatos->first()->url }}"
                                      alt="Capa do livro {{ $livro->titulo }}"
-                                     class="w-48 h-64 object-cover rounded-lg shadow-md">
+                                     class="w-56 aspect-[2/3] object-cover rounded-lg shadow-lg mx-auto">
                             @else
-                                <div class="w-48 h-64 bg-biblioteca-100 flex items-center justify-center rounded-lg">
+                                <div class="w-56 aspect-[2/3] bg-biblioteca-100 flex items-center justify-center rounded-lg shadow-md mx-auto">
                                     <i class="bi bi-book text-6xl text-biblioteca-400"></i>
                                 </div>
                             @endif
                         </div>
 
                         <div class="flex-1">
-                            <div class="mb-4">
-                               <h3 class="font-semibold text-gray-700 mb-2">Autores</h3>
-                               <div class="flex flex-wrap gap-2">
-                                   @foreach($livro->autores as $autor)
-                                       <span class="bg-biblioteca-100 text-biblioteca-800 px-3 py-1 rounded-full text-sm">
-                                           {{ $autor->nome }}
-                                       </span>
-                                   @endforeach
-                               </div>
+                            <button
+                                wire:click="toggleFavorite"
+                                wire:loading.attr="disabled"
+                                class="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors mb-6
+                                       {{ $isFavorito
+                                            ? 'bg-red-50 text-red-700 border border-red-300 hover:bg-red-100'
+                                            : 'bg-biblioteca-100 text-biblioteca-700 border border-biblioteca-200 hover:bg-biblioteca-200'
+                                       }}">
+                                <span wire:loading.remove wire:target="toggleFavorite">
+                                    @if($isFavorito) <i class="bi bi-heart-fill"></i> <span>Remover dos Favoritos</span>
+                                    @else <i class="bi bi-heart"></i> <span>Adicionar aos Favoritos</span> @endif
+                                </span>
+                                <span wire:loading wire:target="toggleFavorite">Atualizando...</span>
+                            </button>
+
+                            <div class="mb-6">
+                                <h3 class="text-xl font-bold text-biblioteca-800 mb-2">Sua Avaliação</h3>
+                                <div x-data="{ hoverRating: 0, currentRating: @entangle('userRating') }"
+                                     @mouseleave="hoverRating = 0"
+                                     class="flex items-center gap-1"
+                                     title="Sua avaliação: {{ $userRating > 0 ? $userRating : 'Nenhuma' }}">
+
+                                    <template x-for="i in 5" :key="i">
+                                        <button @click.prevent="$wire.setRating(i)"
+                                                @mouseenter="hoverRating = i"
+                                                class="text-3xl transition-colors duration-100 focus:outline-none">
+
+                                            <i class="bi bi-star-fill"
+                                               x-show="(hoverRating || currentRating) >= i"
+                                               :class="(hoverRating && hoverRating >= i) ? 'text-yellow-400' : 'text-yellow-500'">
+                                            </i>
+                                            <i class="bi bi-star"
+                                               x-show="!((hoverRating || currentRating) >= i)"
+                                               class="text-biblioteca-300 hover:text-yellow-400">
+                                            </i>
+                                        </button>
+                                    </template>
+                                </div>
                             </div>
+
+                            <div class="mb-6">
+                                <h3 class="text-xl font-bold text-biblioteca-800 mb-3">Autores</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    @forelse($livro->autores as $autor)
+                                        <span class="bg-biblioteca-100 text-biblioteca-800 px-3 py-1 rounded-full text-sm font-medium">{{ $autor->nome }}</span>
+                                    @empty
+                                        <span class="text-biblioteca-600 text-sm">Não identificado</span>
+                                    @endforelse
+                                </div>
                             </div>
+
+                            <div>
+                                <h3 class="text-xl font-bold text-biblioteca-800 mb-3">Detalhes</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-start gap-3">
+                                        <i class="bi bi-tag-fill text-xl text-biblioteca-600 mt-1"></i>
+                                        <div>
+                                            <div class="flex flex-wrap gap-2">
+                                                @forelse($mainGenres as $genre)
+                                                    <span class="bg-biblioteca-700 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                                        {{ $genre }}
+                                                    </span>
+                                                @empty
+                                                    <span class="text-biblioteca-600 text-sm">Sem gênero principal</span>
+                                                @endforelse
+                                            </div>
+                                            @if(!empty($allShelves))
+                                                <p class="text-xs text-biblioteca-500 mt-2">
+                                                    Outras tags: {{ collect($allShelves)->take(5)->implode(', ') }}
+                                                </p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <i class="bi bi-graph-up text-xl text-biblioteca-600"></i>
+                                        <span class="text-biblioteca-700">
+                                            {{ $livro->numero_downloads }} downloads
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     @if($livro->resumo)
-                        <div class="border-t pt-4">
-                            <h3 class="font-semibold text-gray-700 mb-3">Resumo</h3>
-                            <p class="text-gray-600 leading-relaxed text-justify">
+                        <div class="border-t border-biblioteca-200 pt-6">
+                            <h3 class="text-xl font-bold text-biblioteca-800">Resumo</h3>
+                            <p class="text-biblioteca-700 leading-relaxed text-justify whitespace-pre-wrap">
                                 {{ $livro->resumo }}
                             </p>
                         </div>
                     @endif
                 </div>
 
-                <div class="border-t p-4 bg-gray-50 flex justify-end gap-3">
-                    <button 
-                        wire:click="closeModal" 
-                        class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+                <div class="border-t border-biblioteca-200 p-6 bg-biblioteca-50 flex justify-end gap-3 flex-shrink-0">
+                    <button
+                        wire:click="closeModal"
+                        class="px-6 py-2 bg-white text-biblioteca-700 border border-biblioteca-300 rounded-lg hover:bg-biblioteca-100 transition-colors font-medium"
                     >
                         Fechar
                     </button>
-                    <button class="px-6 py-2 bg-biblioteca-500 text-white rounded-lg hover:bg-biblioteca-600 transition-colors">
-                    <i class="bi bi-book mr-2"></i>
+                    <button class="px-6 py-2 bg-biblioteca-700 text-white rounded-lg hover:bg-biblioteca-800 transition-colors font-medium flex items-center gap-2">
+                        <i class="bi bi-book"></i>
                         Ler Livro
                     </button>
                 </div>
@@ -66,3 +166,4 @@
         </div>
     @endif
 </div>
+
