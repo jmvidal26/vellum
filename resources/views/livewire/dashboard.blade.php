@@ -173,11 +173,11 @@
 <livewire:livro-detalhes />
 </div>
 
-
 <script>
+    //a
     // Opções padrão para todos os carrosséis
     var splideOptions = {
-        type: 'slide',
+        type: 'loop',
         perPage: 7,
         gap: '1.5rem',
         pagination: false,
