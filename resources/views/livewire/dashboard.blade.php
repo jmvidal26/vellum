@@ -166,18 +166,12 @@
             </section>
         </div>
     </div>
-    <div class="mx-auto">
-        <div class="mt-12" x-data="tabsManager()">
-        </div>
-    </div>
 <livewire:livro-detalhes />
 </div>
 
-
 <script>
-    // Opções padrão para todos os carrosséis
     var splideOptions = {
-        type: 'slide',
+        type: 'loop',
         perPage: 7,
         gap: '1.5rem',
         pagination: false,
@@ -188,42 +182,65 @@
             640: { perPage: 3 },
         }
     };
-
     var mountedSplides = {};
 
-    // 1. Inicializa os carrosséis FORA das abas
+    function mountSplide(carouselId) {
+        if (mountedSplides[carouselId]) {
+            return;
+        }
+        var element = document.getElementById(carouselId);
+        if (element) {
+            var options = { ...splideOptions };
+            var splide = new Splide(element, options);
+            splide.mount();
+            mountedSplides[carouselId] = true;
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         var standardCarousels = document.querySelectorAll('.book-carousel');
-
         for (var i = 0; i < standardCarousels.length; i++) {
             var el = standardCarousels[i];
             var options = { ...splideOptions };
 
+            if (el.id === 'estante-splide') {
+                var favCount = parseInt(el.getAttribute('data-count')) || 0;
+                var perPage = options.perPage || 7;
+                if (favCount <= perPage) {
+                    options.type = 'slide';
+                    options.pagination = false;
+                    if (favCount === 0) {
+                        options.perPage = 1;
+                        options.arrows = false;
+                        options.drag = false;
+                        el.querySelector('.splide__list').classList.add('flex', 'justify-center');
+                    } else {
+                        options.arrows = favCount > 1;
+                        options.drag = true;
+                    }
+                }
+            }
             new Splide(el, options).mount();
         }
     });
 
-    function tabsManager() {
-        return {
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('tabsManager', () => ({
             tab: 'aventura',
+
             init() {
-                this.mountSplide('aventura-carousel');
+                this.$nextTick(() => {
+                    mountSplide('aventura-carousel');
+                });
             },
+
             openTab(tabName, carouselId) {
                 this.tab = tabName;
-                setTimeout(() => this.mountSplide(carouselId), 10);
-            },
-            mountSplide(carouselId) {
-                if (mountedSplides[carouselId]) {
-                    return;
-                }
-                var element = document.getElementById(carouselId);
-                if (element) {
-                    var splide = new Splide(element, splideOptions);
-                    splide.mount();
-                    mountedSplides[carouselId] = true;
-                }
+
+                this.$nextTick(() => {
+                    mountSplide(carouselId);
+                });
             }
-        }
-    }
+        }));
+    });
 </script>
