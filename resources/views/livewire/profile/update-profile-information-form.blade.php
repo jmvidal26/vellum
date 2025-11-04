@@ -71,7 +71,8 @@ new class extends Component
 
         $this->deletingPhoto = false;
         $this->dispatch('profile-updated');
-        $this-models->redirect(route('profile'), navigate: true);
+
+        $this->redirect(route('profile'), navigate: true);
     }
 
     public function removePhoto(): void
@@ -92,11 +93,77 @@ new class extends Component
     }
 }; ?>
 
-<section x-data="{
-    isCropping: false,
-    imageToCrop: null,
-    /* ... (resto do seu x-data do cropper) ... */
-}">
+<section
+    wire:ignore.self
+    x-data="{
+        isCropping: false,
+        imageToCrop: null,
+        cropper: null,
+
+        handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.imageToCrop = e.target.result;
+                this.isCropping = true;
+
+                this.$nextTick(() => {
+                    if (this.cropper) {
+                        this.cropper.destroy();
+                    }
+                    this.cropper = new Cropper(this.$refs.croppingImage, {
+                        aspectRatio: 1 / 1,
+                        viewMode: 2,
+                        dragMode: 'move',
+                        background: false,
+                        autoCropArea: 0.8,
+                    });
+                });
+            };
+            reader.readAsDataURL(file);
+        },
+
+        cropAndUpload() {
+            if (!this.cropper) return;
+
+            const wire = this.$wire;
+
+            this.cropper.getCroppedCanvas({
+                width: 256,
+                height: 256,
+                imageSmoothingQuality: 'high',
+            }).toBlob((blob) => {
+                const file = new File([blob], 'avatar.png', { type: 'image/png' });
+
+
+                wire.upload('photo', file,
+                    (uploadedFilename) => {
+                        this.isCropping = false;
+                        this.cropper.destroy();
+                        this.cropper = null;
+                        this.imageToCrop = null;
+
+                        wire.set('deletingPhoto', false);
+                    },
+                    () => {},
+                    (event) => {}
+                );
+            }, 'image/png');
+        },
+
+        cancelCrop() {
+            this.isCropping = false;
+            if (this.cropper) {
+                this.cropper.destroy();
+            }
+            this.cropper = null;
+            this.imageToCrop = null;
+            this.$refs.fileInput.value = null;
+        }
+    }"
+>
 
     <form wire:submit="updateProfileInformation" class="space-y-6">
 
@@ -161,7 +228,7 @@ new class extends Component
                     <i class="bi bi-book-half text-xl text-blue-600"></i>
                 </div>
                 <div>
-                    <div class="text-2xl font-bold text-biblioteca-800">{{ $andamentoCount }}</div>
+                    <div classs="text-2xl font-bold text-biblioteca-800">{{ $andamentoCount }}</div>
                     <div class="text-sm font-medium text-biblioteca-600">Livros em Andamento</div>
                 </div>
             </div>
