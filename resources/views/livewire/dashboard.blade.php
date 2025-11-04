@@ -179,7 +179,7 @@
     var splideOptions = {
         type: 'slide',
         perPage: 7,
-        gap: '1.5rem',
+        gap: '0.5rem',
         pagination: false,
         arrows: 'true',
         breakpoints: {

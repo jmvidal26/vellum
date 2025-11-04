@@ -1,21 +1,19 @@
 <li class="splide__slide list-none" wire:ignore.self>
-    <div class="block h-full group relative transition-all duration-300">
-        <div class="bg-white rounded-lg shadow-md overflow-visible group-hover:shadow-lg transition-shadow duration-300 h-full {{ $size === 'large' ? 'max-w-xs' : '' }}">
+    <a href="javascript:void(0)" wire:click="openModal({{ $livro['id'] }})" class="block h-full group relative transition-all duration-300 hover:z-20" style="padding-left: 10px; padding-right: 10px;">
+        <div class="bg-white rounded-lg shadow-lg overflow-visible group-hover:shadow-xl transition-shadow duration-300 h-full {{ $size === 'large' ? 'max-w-xs' : '' }}">
 
             @php
                 $formatos = is_array($livro['formatos'] ?? null) ? $livro['formatos'] : $livro->formatos;
-
                 $formatoImagem = collect($formatos)->firstWhere('media_type', 'image/jpeg');
-
                 $urlCapa = $formatoImagem['url'] ?? null;
             @endphp
 
             @if($urlCapa)
                 <img src="{{ $urlCapa }}"
                      alt="Capa do livro {{ $livro['titulo'] ?? $livro->titulo }}"
-                     class="w-full object-cover aspect-[2/3] rounded-t-lg">
+                     class="w-full object-cover aspect-[2/3] rounded-t-lg group-hover:scale-105 transition-transform duration-300">
             @else
-                <div class="w-full bg-biblioteca-100 aspect-[2/3] flex items-center justify-center rounded-t-lg">
+                <div class="w-full bg-biblioteca-100 aspect-[2/3] flex items-center justify-center rounded-t-lg group-hover:scale-105 transition-transform duration-300">
                     <i class="bi bi-book text-4xl text-biblioteca-400"></i>
                 </div>
             @endif
@@ -27,14 +25,13 @@
                     {{ $livro['titulo'] ?? $livro->titulo }}
                 </h4>
 
-                <p class="text-biblioteca-600 {{ $size === 'large' ? 'text-base' : 'text-sm' }} truncate">
-                    @php
-                        if (is_array($livro)) {
-                            $autores = collect($livro['autores'] ?? [])->pluck('nome')->implode(', ');
-                        } else {
-                            $autores = $livro->autores->pluck('nome')->implode(', ');
-                        }
-                    @endphp
+                @php
+                    if (is_array($livro)) {
+                        $autores = collect($livro['autores'] ?? [])->pluck('nome')->implode(', ');
+                    } else {
+                        $autores = $livro->autores->pluck('nome')->implode(', ');
+                    }
+                @endphp
                 <p class="text-biblioteca-600 {{ $size === 'large' ? 'text-base' : 'text-sm' }} truncate" title="{{ $autores ?: 'Não identificado' }}">
                     {{ $autores ?: 'Não identificado' }}
                 </p>
@@ -46,7 +43,8 @@
                 <div class="flex justify-between items-center mt-3">
                     @auth
                         <button
-                            wire:click="toggleFavorite({{ $livro['id'] ?? $livro->id }})"
+                            type="button"
+                        wire:click.stop="toggleFavorite({{ $livro['id'] ?? $livro->id }})"
                             wire:loading.attr="disabled"
                             class="text-biblioteca-500 {{ $size === 'large' ? 'text-sm' : 'text-xs' }} flex items-center gap-1 hover:text-red-500 transition-colors"
                         >
@@ -60,13 +58,12 @@
                         </button>
                     @endauth
 
-                    <button
-                        wire:click="openModal({{ $livro['id'] }})"
-                        class="bg-biblioteca-500 hover:bg-biblioteca-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                    <span
+                        class="bg-biblioteca-500 text-white px-3 py-1 rounded text-sm transition-colors group-hover:bg-biblioteca-600"
                     >
                         Detalhes
-                    </button>
+                    </span>
                 </div>
             </div>
         </div>
-    </div> </li>
+    </a> </li>
