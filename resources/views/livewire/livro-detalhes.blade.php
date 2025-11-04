@@ -176,7 +176,6 @@
                         </button>
                     </div>
 
-                    @livewire('livro-texto')
                 </div>
             </div>
         </div>

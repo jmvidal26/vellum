@@ -8,32 +8,37 @@ use Livewire\Attributes\On;
 class LivroTexto extends Component
 {
     public $conteudoLivro = '';
+    public $titulo = '';
+    public $autores = '';
+    public $capaUrl = '';
     public $mostrar = false;
+    public $isProse = true;
 
     #[On('livroCarregado')]
-    public function carregarConteudo($conteudo)
-    {
-        $this->conteudoLivro = $conteudo;
+    public function carregarConteudo(
+        ?string $titulo = null,
+        ?string $autores = null,
+        ?string $capa = null,
+        ?string $conteudo = null,
+        bool $isProse = true
+    ) {
+        $this->titulo = $titulo ?? 'Erro ao Carregar';
+        $this->autores = $autores ?? 'Desconhecido';
+        $this->capaUrl = $capa;
+        $this->conteudoLivro = $conteudo ?? 'Ocorreu um erro inesperado ao carregar o conteúdo do livro.';
+        $this->isProse = $isProse;
         $this->mostrar = true;
     }
 
+    #[On('close-reader')]
     public function fechar()
     {
         $this->mostrar = false;
         $this->conteudoLivro = '';
-    }
-    public function limparConteudo($html)
-    {
-        $html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html);
-        $html = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $html);
-
-        $html = preg_replace('/<head\b[^>]*>(.*?)<\/head>/is', '', $html);
-
-        if (preg_match('/<body[^>]*>(.*?)<\/body>/is', $html, $matches)) {
-            $html = $matches[1];
-        }
-
-        return $html;
+        $this->titulo = '';
+        $this->autores = '';
+        $this->capaUrl = '';
+        $this->dispatch('fechar-modal-detalhes');
     }
 
     public function render()
