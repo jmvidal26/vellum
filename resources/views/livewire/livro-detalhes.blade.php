@@ -1,17 +1,14 @@
-<div
-    x-data="{ isVisible: $wire.entangle('showModal') }"
-    x-init="$watch('isVisible', (value) => {
-        if (value) {
-            document.body.classList.add('overflow-hidden');
-        } else {
-            document.body.classList.remove('overflow-hidden');
-        }
-    })"
->
+<div>
     @if($showModal && $livro)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div
+            x-data
+            x-init="document.body.classList.add('overflow-hidden')"
+            x-destroy="document.body.classList.remove('overflow-hidden')"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
 
             <div class="fixed inset-0 bg-black bg-opacity-70"></div>
+
             <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden relative z-10 shadow-xl flex flex-col">
 
                 <div class="flex justify-between items-start p-6 border-b border-biblioteca-200 flex-shrink-0">
@@ -40,15 +37,18 @@
                     </button>
                 </div>
 
-                <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+                <div class="p-6 md:p-8 overflow-y-auto flex-1">
+
                     @php
-                    $formatos = $livro->formatos;
-                    $imagem = $formatos->firstWhere('media_type', 'image/jpeg');
-                    $url = $imagem->url;
+                        $formatos = $livro->formatos;
+                        $imagem = $formatos->firstWhere('media_type', 'image/jpeg');
+                        $url = $imagem ? $imagem->url : ($formatos->first()->url ?? null);
                     @endphp
-                    <div class="flex flex-col md:flex-row gap-6 mb-6">
-                        <div class="flex-shrink-0">
-                            @if($livro->formatos->first()->url ?? null)
+
+                    <div class="flex flex-col md:flex-row gap-6 md:gap-8 mb-6">
+
+                        <div class="flex-shrink-0 w-full md:w-56 mx-auto md:mx-0">
+                            @if($url)
                                 <img src="{{ $url }}"
                                      alt="Capa do livro {{ $livro->titulo }}"
                                      class="w-56 aspect-[2/3] object-cover rounded-lg shadow-lg mx-auto">
@@ -77,10 +77,16 @@
 
                             <div class="mb-6">
                                 <h3 class="text-xl font-bold text-biblioteca-800 mb-2">Sua Avaliação</h3>
-                                <div x-data="{ hoverRating: 0, currentRating: $wire.entangle('userRating') }"
-                                     @mouseleave="hoverRating = 0"
-                                     class="flex items-center gap-1"
-                                     title="Sua avaliação: {{ $userRating > 0 ? $userRating : 'Nenhuma' }}">
+
+                                <div
+                                    x-data="{
+                                         hoverRating: 0,
+                                         currentRating: {{ $userRating }}
+                                     }"
+                                    @rating-updated.window="currentRating = $event.detail.rating"
+                                    @mouseleave="hoverRating = 0"
+                                    class="flex items-center gap-1"
+                                    title="Sua avaliação: {{ $userRating > 0 ? $userRating : 'Nenhuma' }}">
 
                                     <template x-for="i in 5" :key="i">
                                         <button @click.prevent="$wire.setRating(i)"
@@ -146,7 +152,7 @@
 
                     @if($livro->resumo)
                         <div class="border-t border-biblioteca-200 pt-6">
-                            <h3 class="text-xl font-bold text-biblioteca-800">Resumo</h3>
+                            <h3 class="text-xl font-bold text-biblioteca-800 mb-3">Resumo</h3>
                             <p class="text-biblioteca-700 leading-relaxed text-justify whitespace-pre-wrap">
                                 {{ $livro->resumo }}
                             </p>
@@ -154,18 +160,23 @@
                     @endif
                 </div>
 
-                <div class="border-t border-biblioteca-200 p-6 bg-biblioteca-50 flex justify-end gap-3 flex-shrink-0">
-                    <button
-                        wire:click="closeModal"
-                        class="px-6 py-2 bg-white text-biblioteca-700 border border-biblioteca-300 rounded-lg hover:bg-biblioteca-100 transition-colors font-medium"
-                    >
-                        Fechar
-                    </button>
-                        <button wire:click="abrirLivro" class="bg-blue-500 text-white px-4 py-2 rounded">
+                <div class="border-t border-biblioteca-200 p-6 bg-biblioteca-50 flex-shrink-0">
+                    <div class="flex justify-end gap-3">
+                        <button
+                            wire:click="closeModal"
+                            class="px-6 py-2 bg-white text-biblioteca-700 border border-biblioteca-300 rounded-lg hover:bg-biblioteca-100 transition-colors font-medium"
+                        >
+                            Fechar
+                        </button>
+                        <button
+                            wire:click="abrirLivro"
+                            class="px-6 py-2 bg-biblioteca-700 text-white rounded-lg hover:bg-biblioteca-800 transition-colors font-medium flex items-center gap-2">
+                            <i class="bi bi-book"></i>
                             Ler Livro
                         </button>
-                        @livewire('livro-texto')
                     </div>
+
+                    @livewire('livro-texto')
                 </div>
             </div>
         </div>

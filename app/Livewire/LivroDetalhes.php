@@ -119,6 +119,8 @@ class LivroDetalhes extends Component
             $this->userRating = $newRating;
         }
         $this->livro->refresh();
+
+        $this->dispatch('rating-updated', rating: $this->userRating);
     }
 
     public function toggleFavorite()
