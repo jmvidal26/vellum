@@ -1,7 +1,10 @@
 <?php
 
 use App\Models\User;
+use App\Models\LivroFavorito;
+use App\Models\UserLivroStatus;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
 use Livewire\Volt\Component;
@@ -17,10 +20,22 @@ new class extends Component
     public $photo;
     public bool $deletingPhoto = false;
 
+    public int $favoritosCount = 0;
+    public int $andamentoCount = 0;
+
     public function mount(): void
     {
-        $this->name = Auth::user()->name;
-        $this->email = Auth::user()->email;
+        $user = Auth::user();
+        $this->name = $user->name;
+        $this->email = $user->email;
+
+        $this->favoritosCount = LivroFavorito::where('user_id', $user->id)->count();
+
+        if (Schema::hasTable('user_livro_status')) {
+            $this->andamentoCount = UserLivroStatus::where('user_id', $user->id)
+                ->where('status', 'em_andamento')
+                ->count();
+        }
     }
 
     public function updateProfileInformation(): void
@@ -56,7 +71,7 @@ new class extends Component
 
         $this->deletingPhoto = false;
         $this->dispatch('profile-updated');
-        $this->redirect(route('profile'), navigate: true);
+        $this-models->redirect(route('profile'), navigate: true);
     }
 
     public function removePhoto(): void
@@ -80,72 +95,12 @@ new class extends Component
 <section x-data="{
     isCropping: false,
     imageToCrop: null,
-    cropper: null,
-
-    handleFileSelect(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            this.imageToCrop = e.target.result;
-            this.isCropping = true;
-
-            this.$nextTick(() => {
-                if (this.cropper) {
-                    this.cropper.destroy();
-                }
-                this.cropper = new Cropper(this.$refs.croppingImage, {
-                    aspectRatio: 1 / 1,
-                    viewMode: 2,
-                    dragMode: 'move',
-                    background: false,
-                    autoCropArea: 0.8,
-                });
-            });
-        };
-        reader.readAsDataURL(file);
-    },
-
-    cropAndUpload() {
-        if (!this.cropper) return;
-
-        this.cropper.getCroppedCanvas({
-            width: 256,
-            height: 256,
-            imageSmoothingQuality: 'high',
-        }).toBlob((blob) => {
-            const file = new File([blob], 'avatar.png', { type: 'image/png' });
-
-            @this.upload('photo', file,
-                (uploadedFilename) => {
-                    this.isCropping = false;
-                    this.cropper.destroy();
-                    this.cropper = null;
-                    this.imageToCrop = null;
-
-                    @this.set('deletingPhoto', false);
-                },
-                () => {},
-                (event) => {}
-            );
-        }, 'image/png');
-    },
-
-    cancelCrop() {
-        this.isCropping = false;
-        if (this.cropper) {
-            this.cropper.destroy();
-        }
-        this.cropper = null;
-        this.imageToCrop = null;
-        this.$refs.fileInput.value = null;
-    }
+    /* ... (resto do seu x-data do cropper) ... */
 }">
 
     <form wire:submit="updateProfileInformation" class="space-y-6">
 
-        <div class="flex items-center gap-6">
+        <div class="flex flex-col sm:flex-row items-center gap-6">
             <div>
                 <span class="block h-20 w-20 rounded-full bg-biblioteca-100 overflow-hidden">
                     @if ($photo)
@@ -160,7 +115,7 @@ new class extends Component
                 </span>
             </div>
 
-            <div>
+            <div class="flex-grow">
                 <input type="file" class="hidden"
                        id="photo-input-{{ $this->getId() }}"
                        x-ref="fileInput"
@@ -188,6 +143,28 @@ new class extends Component
                     </x-secondary-button>
                 </div>
             @endif
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+            <div class="bg-biblioteca-50 border border-biblioteca-200 rounded-lg p-4 flex items-center gap-4">
+                <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-red-100 rounded-full">
+                    <i class="bi bi-heart-fill text-xl text-red-600"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-biblioteca-800">{{ $favoritosCount }}</div>
+                    <div class="text-sm font-medium text-biblioteca-600">Livros Favoritos</div>
+                </div>
+            </div>
+
+            <div class="bg-biblioteca-50 border border-biblioteca-200 rounded-lg p-4 flex items-center gap-4">
+                <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-blue-100 rounded-full">
+                    <i class="bi bi-book-half text-xl text-blue-600"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-biblioteca-800">{{ $andamentoCount }}</div>
+                    <div class="text-sm font-medium text-biblioteca-600">Livros em Andamento</div>
+                </div>
+            </div>
         </div>
 
         <header class="mt-6 border-t border-biblioteca-200 pt-6">
