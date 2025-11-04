@@ -1,5 +1,5 @@
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
 <div class="mx-auto">
-
     <div class="mb-10">
         <h2 class="text-4xl font-bold text-biblioteca-800 mb-2">Clube do Livro Vellum</h2>
         <p class="text-lg text-biblioteca-600">Discuta, descubra e conecte-se com outros leitores.</p>
@@ -142,7 +142,7 @@
                     </div>
                 @endif
 
-                <div class="space-y-6">
+                <div class="space-y-6" style="margin-top: 10px">
                     @forelse($comentarios as $comentario)
                         <div class="flex items-start gap-4">
                             <span class="block h-12 w-12 rounded-full bg-biblioteca-100 overflow-hidden">
@@ -234,7 +234,68 @@
 
             </div>
         </aside>
-
     </div>
+
+    <div wire:ignore.self class="mt-12">
+        <h3 id="downloads-title" class="text-2xl font-bold text-biblioteca-800 mb-6 flex items-center gap-2">
+            <i class="bi bi-graph-up"></i>
+            <span>Outros Clubes</span>
+        </h3>
+
+        <div >
+            <section class="splide book-carousel" id="book-carousel-clube-livro" aria-labelledby="downloads-title">
+                <div class="splide__track pt-4">
+                    <ul class="splide__list">
+                        @foreach($livros as $livro)
+                                <livewire:livro-card
+                                :livro="$livro"
+                                :key="$livro->id"
+                                />
+                        @endforeach
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </div>
+    <livewire:livro-detalhes />
+    <livewire:livro-texto />
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const splideOptions = {
+            type: 'slide',
+            perPage: 5,
+            perMove: 1,
+            gap: '1rem',
+            pagination: false,
+            breakpoints: {
+                1024: { perPage: 10 },
+                768: { perPage: 3 },
+                640: { perPage: 2 }
+            }
+        };
+
+        function initializeCarousel() {
+            const carouselElement = document.getElementById('book-carousel-clube-livro');
+
+            if (carouselElement && !carouselElement._splide) {
+                if (window.clubeLivroCarousel) {
+                    window.clubeLivroCarousel.destroy();
+                }
+
+                window.clubeLivroCarousel = new Splide(carouselElement, splideOptions);
+                window.clubeLivroCarousel.mount();
+                carouselElement._splide = true;
+
+                console.log('Carrossel do Clube do Livro inicializado');
+            }
+        }
+
+        initializeCarousel();
+
+        document.addEventListener('livewire:load', initializeCarousel);
+        document.addEventListener('livewire:update', initializeCarousel);
+    });
+</script>
 

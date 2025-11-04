@@ -38,7 +38,6 @@
         }
     </style>
 
-    @livewireScripts
 </head>
 <body class="bg-biblioteca-50 text-biblioteca-900 min-h-screen flex flex-col">
 
@@ -153,6 +152,6 @@
         }
     }
 </script>
-
+@livewireScripts
 </body>
 </html>

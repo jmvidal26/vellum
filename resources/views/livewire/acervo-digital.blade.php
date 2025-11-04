@@ -105,7 +105,7 @@
         </main>
     </div>
     <livewire:livro-detalhes />
-
+    <livewire:livro-texto />
     @if($livroIdProcurado)
         <script>
             document.addEventListener('DOMContentLoaded', function() {

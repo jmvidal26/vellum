@@ -44,8 +44,17 @@
                                 <i class="bi bi-search mr-2"></i>Explorar
                             </button>
                         </li>
-                        <li><a href="{{ route('minha_estante') }}" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2"><i class="bi bi-bookmark mr-2"></i>Minha Estante</a></li>
-
+                        <li><a href="{{ route('minha_estante') }}"
+                                @class([
+                                     'nav-link font-medium text-biblioteca-100 hover:text-white py-2',
+                                     'active-nav' => request()->routeIs('minha_estante*')
+                                 ])>
+                                <i class="bi bi-bookmark mr-2"></i>Minha Estante</a></li>
+                        <li><a href="{{ route('clube-do-livro') }}"
+                                @class([
+                                     'nav-link font-medium text-biblioteca-100 hover:text-white py-2',
+                                     'active-nav' => request()->routeIs('clube-do-livro*')
+                                 ])><i class="bi bi-people mr-2"></i> Clube do Livro</a></li>
                         <li class="relative" x-data="{ open: false }">
                             <button @click="open = !open" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 flex items-center space-x-2">
 
@@ -113,6 +122,7 @@
                         </button>
                     </li>
                     <li><a href="{{ route('minha_estante') }}" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 block"><i class="bi bi-bookmark mr-2"></i>Minha Estante</a></li>
+                    <li><a href="{{ route('clube-do-livro') }}" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 block"><i class="bi bi-people mr-2"></i> Clube do Livro</a></li>
                     <li><a href="{{ route('profile') }}" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 block"><i class="bi bi-person mr-2"></i>Perfil</a></li>
                 </ul>
             </div>

@@ -22,8 +22,14 @@ class ClubeLivro extends Component
     public $sessoesAnteriores;
     public $novoComentario = '';
 
+    public $livros = '';
+
     public function mount()
     {
+        $this->livros = Livro::orderby('numero_downloads', 'desc')
+            ->limit(15)
+            ->get();
+
         $this->sessaoAtiva = ClubeSessao::with('livro.autores', 'livro.formatos')
             ->where('status', 'ativo')
             ->first();
@@ -63,6 +69,7 @@ class ClubeLivro extends Component
 
     public function sairClube()
     {
+        dd("oi");
         if (auth()->user()->is_membro_clube) {
             auth()->user()->inscricaoClube->delete();
             $this->recarregarMembros();
@@ -82,10 +89,10 @@ class ClubeLivro extends Component
     {
         $this->validate(['novoComentario' => 'required|string']);
         if (!$this->sessaoAtiva) return;
-
         $this->sessaoAtiva->comentarios()->create([
             'user_id' => auth()->id(),
-            'texto' => $this->novoComentario
+            'texto' => $this->novoComentario,
+            'clube_sessao_id' => $this->sessaoAtiva->id,
         ]);
 
         $this->novoComentario = '';

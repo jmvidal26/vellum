@@ -4,7 +4,7 @@ namespace App\Livewire;
 
 use App\Services\CommumFunctions;
 use Livewire\Component;
-use Livewire\Attributes\On; 
+use Livewire\Attributes\On;
 
 class LivroCard extends Component
 {
@@ -52,7 +52,7 @@ class LivroCard extends Component
     {
         $this->dispatch('openLivroModal', livroId: $livroId);
     }
-    
+
 
     private function checkFavoriteStatus()
     {

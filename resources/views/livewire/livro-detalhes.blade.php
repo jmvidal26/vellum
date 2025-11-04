@@ -2,8 +2,11 @@
     @if($showModal && $livro)
         <div
             x-data
-            x-init="document.body.classList.add('overflow-hidden')"
-            x-destroy="document.body.classList.remove('overflow-hidden')"
+            x-init="$watch('show', value => {
+                        if(value) { document.body.classList.add('overflow-hidden'); }
+                        else { document.body.classList.remove('overflow-hidden'); }
+                     })"
+            x-data="{ show: @entangle('showModal') }"
             class="fixed inset-0 z-50 flex items-center justify-center p-4"
         >
 
