@@ -49,13 +49,17 @@ class ClubeLivro extends Component
     public function entrarClube()
     {
         if (!auth()->user()->is_membro_clube) {
-            ClubeMembro::create(['user_id' => auth()->id()]);
+            ClubeMembro::create([
+                'user_id' => auth()->id(),
+                'clube_sessao_id' => $this->sessaoAtiva->id,
+            ]);
             $this->recarregarMembros();
 
             Auth::setUser(User::find(auth()->id()));
             unset(auth()->user()->is_membro_clube);
         }
     }
+
 
     public function sairClube()
     {
@@ -76,7 +80,7 @@ class ClubeLivro extends Component
 
     public function adicionarComentario()
     {
-        $this->validate(['novoComentario' => 'required|string|min:3']);
+        $this->validate(['novoComentario' => 'required|string']);
         if (!$this->sessaoAtiva) return;
 
         $this->sessaoAtiva->comentarios()->create([

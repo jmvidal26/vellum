@@ -91,4 +91,18 @@ class CommumFunctions
             ->exists();
     }
 
+    public static function getIniciais($nome)
+    {
+        $partes = explode(' ', trim($nome));
+
+        $iniciais = strtoupper(substr($partes[0], 0, 1));
+
+        if (count($partes) > 1) {
+            $iniciais .= strtoupper(substr(end($partes), 0, 1));
+        }
+
+        return $iniciais;
+    }
+
+
 }

@@ -20,5 +20,6 @@ class DatabaseSeeder extends Seeder
         $livrosPorPagina = iterator_to_array($apiLivros->buscarPaginas('books', 2));
 
         $this->callWith(LivroSeeder::class, ['livrosPorPagina' => $livrosPorPagina]);
+        $this->callWith(ClubeLivroSeeder::class);
     }
 }

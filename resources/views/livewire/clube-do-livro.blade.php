@@ -45,7 +45,12 @@
                 <section class="bg-white rounded-xl shadow-md border border-biblioteca-200 overflow-hidden">
                     <div class="flex flex-col md:flex-row">
                         <div class="md:w-1/3">
-                            <img src="{{ $sessaoAtiva->livro->formatos->first()->url ?? 'https://placehold.co/400x600/c08550/FFFFFF?text=Capa' }}"
+                            @php
+                                $imagemUrl = $sessaoAtiva->livro->formatos
+                                ->where('media_type', 'image/jpeg')
+                                ->first()?->url;
+                            @endphp
+                            <img src="{{ $imagemUrl ?? 'https://placehold.co/400x600/c08550/FFFFFF?text=Capa' }}"
                                  alt="Capa do livro {{ $sessaoAtiva->livro->titulo }}"
                                  class="w-full h-full object-cover">
                         </div>
@@ -208,10 +213,12 @@
                         <i class="bi bi-book-half"></i>
                         Livros Anteriores
                     </h3>
+
                     <div class="space-y-4">
+
                         @forelse($sessoesAnteriores as $sessao)
                             <a href="#" class="flex items-center gap-3 group">
-                                <img src="{{ $sessao->livro->formatos->first()->url ?? 'https://placehold.co/50x75/c08550/FFFFFF?text=Capa' }}"
+                                <img src="{{ $imagemUrl ?? 'https://placehold.co/50x75/c08550/FFFFFF?text=Capa' }}"
                                      alt="Capa {{ $sessao->livro->titulo }}"
                                      class="w-12 h-[72px] object-cover rounded shadow-sm">
                                 <div>
