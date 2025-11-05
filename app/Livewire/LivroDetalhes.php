@@ -137,7 +137,8 @@ class LivroDetalhes extends Component
                     autores: $autores,
                     capa: $capa,
                     conteudo: $conteudoLimpo,
-                    isProse: $isProse
+                    isProse: $isProse,
+                    livro_id: $this->livro->id,
                 );
 
                 $this->closeModal();
@@ -148,7 +149,8 @@ class LivroDetalhes extends Component
                     autores: $autores,
                     capa: $capa,
                     conteudo: "Erro ao carregar o livro: " . $e->getMessage(),
-                    isProse: true
+                    isProse: true,
+                    livro_id: $this->livro->id,
                 );
             }
         } else {
@@ -158,7 +160,8 @@ class LivroDetalhes extends Component
                 autores: $autores,
                 capa: $capa,
                 conteudo: "Nenhuma versão de leitura (TXT ou HTML) foi encontrada para este livro.",
-                isProse: true
+                isProse: true,
+                livro_id: $this->livro->id,
             );
         }
     }
