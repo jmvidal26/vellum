@@ -1,4 +1,3 @@
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
 <div class="mx-auto">
     <div class="mb-10">
         <h2 class="text-4xl font-bold text-biblioteca-800 mb-2">Clube do Livro Vellum</h2>
@@ -142,7 +141,7 @@
                     </div>
                 @endif
 
-                <div class="space-y-6" style="margin-top: 10px">
+                <div class="space-y-6">
                     @forelse($comentarios as $comentario)
                         <div class="flex items-start gap-4">
                             <span class="block h-12 w-12 rounded-full bg-biblioteca-100 overflow-hidden">
@@ -260,7 +259,6 @@
     <livewire:livro-detalhes />
     <livewire:livro-texto />
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const splideOptions = {
