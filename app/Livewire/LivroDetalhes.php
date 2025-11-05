@@ -133,7 +133,8 @@ class LivroDetalhes extends Component
                     autores: $autores,
                     capa: $capa,
                     chapters: $chapters,
-                    isProse: $isProse
+                    isProse: $isProse,
+                    livro_id: $this->livro->id
                 );
 
             } catch (\Exception $e) {
@@ -143,7 +144,8 @@ class LivroDetalhes extends Component
                     autores: $autores,
                     capa: $capa,
                     chapters: $errorChapter,
-                    isProse: true
+                    isProse: true,
+                    livro_id: $this->livro->id
                 );
             }
         } else {
@@ -153,7 +155,8 @@ class LivroDetalhes extends Component
                 autores: $autores,
                 capa: $capa,
                 chapters: $errorChapter,
-                isProse: true
+                isProse: true,
+                livro_id: $this->livro->id
             );
         }
     }
