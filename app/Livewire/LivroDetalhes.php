@@ -18,12 +18,6 @@ class LivroDetalhes extends Component
     public $mainGenres = [];
     public $allShelves = [];
 
-    #[On('fechar-modal-detalhes')]
-    public function fecharPeloLeitor()
-    {
-        $this->closeModal();
-    }
-
     #[On('openLivroModal')]
     public function mostrarDetalhes($livroId)
     {
@@ -125,45 +119,46 @@ class LivroDetalhes extends Component
 
                 $isProse = !preg_match('/(ACT [IVXLCDM]+|SCENE [IVXLCDM]+)/i', $conteudo);
 
-                $conteudoLimpo = '';
+                $conteudoSemiLimpo = '';
                 if ($isHtml) {
-                    $conteudoLimpo = $this->limparHtmlParaTxt($conteudo, $isProse);
+                    $conteudoSemiLimpo = $this->limparHtmlParaTxt($conteudo);
                 } else {
-                    $conteudoLimpo = $this->limparTextoGutenberg($conteudo, $isProse);
+                    $conteudoSemiLimpo = $this->limparTextoGutenberg($conteudo);
                 }
+
+                $chapters = $this->parseChapters($conteudoSemiLimpo, $isProse);
 
                 $this->dispatch('livroCarregado',
                     titulo: $titulo,
                     autores: $autores,
                     capa: $capa,
-                    conteudo: $conteudoLimpo,
+                    chapters: $chapters,
                     isProse: $isProse
                 );
 
-                $this->closeModal();
-
             } catch (\Exception $e) {
+                $errorChapter = [['title' => 'Erro', 'content' => "Erro ao carregar o livro: " . $e->getMessage()]];
                 $this->dispatch('livroCarregado',
                     titulo: $titulo,
                     autores: $autores,
                     capa: $capa,
-                    conteudo: "Erro ao carregar o livro: " . $e->getMessage(),
+                    chapters: $errorChapter,
                     isProse: true
                 );
             }
         } else {
-
+            $errorChapter = [['title' => 'Erro', 'content' => "Nenhuma versão de leitura (TXT ou HTML) foi encontrada para este livro."]];
             $this->dispatch('livroCarregado',
                 titulo: $titulo,
                 autores: $autores,
                 capa: $capa,
-                conteudo: "Nenhuma versão de leitura (TXT ou HTML) foi encontrada para este livro.",
+                chapters: $errorChapter,
                 isProse: true
             );
         }
     }
 
-    private function limparHtmlParaTxt($html, $isProse = true)
+    private function limparHtmlParaTxt($html)
     {
         if (function_exists('mb_convert_encoding')) {
             $html = mb_convert_encoding($html, 'UTF-8', 'UTF-8');
@@ -186,14 +181,18 @@ class LivroDetalhes extends Component
         $text = strip_tags($html);
         $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
 
-        $text = $this->limparTextoGutenberg($text, $isProse);
+        if (function_exists('mb_convert_encoding')) {
+            $text = mb_convert_encoding($text, 'UTF-8', 'UTF-8');
+        }
+        $text = preg_replace('/^\x{FEFF}/u', '', $text);
+        $text = preg_replace('/^.*?\*\*\* START OF .*?\*\*\*/is', '', $text, 1);
+        $text = preg_replace('/\*\*\* END OF .*?\*\*\*.*$/is', '', $text, 1);
 
-        $text = preg_replace('/(\r\n|\r|\n){3,}/', "\n\n", $text);
 
         return trim($text);
     }
 
-    private function limparTextoGutenberg($text, $isProse = true)
+    private function limparTextoGutenberg($text)
     {
         if (function_exists('mb_convert_encoding')) {
             $text = mb_convert_encoding($text, 'UTF-8', 'UTF-8');
@@ -205,12 +204,6 @@ class LivroDetalhes extends Component
 
         $text = preg_replace('/\*\*\* END OF .*?\*\*\*.*$/is', '', $text, 1);
 
-        if ($isProse) {
-
-            $text = preg_replace('/([^\n])(\r\n|\r|\n)([^\n])/', '$1 $3', $text);
-        }
-
-        $text = preg_replace('/(\r\n|\r|\n){3,}/', "\n\n", $text);
 
         return trim($text);
     }
@@ -218,6 +211,70 @@ class LivroDetalhes extends Component
     private function limparConteudoGutenberg($text)
     {
         return $this->limparTextoGutenberg($text);
+    }
+
+    private function parseChapters($text, $isProse)
+    {
+        $regex = '/^' .
+            '(' .
+
+            'PREFACE|CONTENTS|INTRODUCTION|FORWARD|EPILOGUE|ETYMOLOGY|EXTRACTS|Dramatis Personæ|THE PROLOGUE|PROLOGUE|CHORUS' .
+
+            '|' .
+
+            '(?:CHAPTER|BOOK|ACT|SCENE|PART|LETTER)\s+[IVXLCDM\d]+' .
+
+            ')' .
+            '.*$' .
+            '/im';
+
+        preg_match_all($regex, $text, $matches, PREG_OFFSET_CAPTURE);
+
+        $chapters = [];
+
+        $firstMatchOffset = $matches[0][0][1] ?? strlen($text);
+        $introContent = substr($text, 0, $firstMatchOffset);
+
+        if ($isProse) {
+            $introContent = preg_replace('/([^\n])(\r\n|\r|\n)([^\n])/', '$1 $3', $introContent);
+        }
+        $introContent = preg_replace('/(\r\n|\r|\n){3,}/', "\n\n", $introContent); // Limpa quebras excessivas
+        $introContent = trim($introContent);
+
+        if (strlen($introContent) > 250) {
+            $chapters[] = ['title' => 'Introdução', 'content' => $introContent];
+        }
+
+        foreach ($matches[0] as $index => $match) {
+            $title = ucwords(strtolower(trim($match[0])));
+            $title = rtrim($title, '.');
+
+            $offset = $match[1];
+            $contentStart = $offset + strlen($match[0]);
+            $nextMatchOffset = $matches[0][$index + 1][1] ?? strlen($text);
+            $contentLength = $nextMatchOffset - $contentStart;
+
+            $content = substr($text, $contentStart, $contentLength);
+
+            if ($isProse) {
+                $content = preg_replace('/([^\n])(\r\n|\r|\n)([^\n])/', '$1 $3', $content);
+            } else {
+                $content = preg_replace('/(\r\n|\r|\n){3,}/', "\n\n", $content);
+            }
+            $content = trim($content);
+
+            if (!empty($content)) {
+                $chapters[] = ['title' => $title, 'content' => $content];
+            }
+        }
+
+        if (empty($chapters) && !empty($introContent) && strlen($introContent) > 20) {
+            if(count($chapters) == 0) {
+                $chapters[] = ['title' => 'Livro Completo', 'content' => $introContent];
+            }
+        }
+
+        return $chapters;
     }
 
     public function setRating($newRating)

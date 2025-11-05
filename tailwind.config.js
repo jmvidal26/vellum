@@ -1,5 +1,6 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
+import typography from '@tailwindcss/typography';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -15,6 +16,13 @@ export default {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
             colors: {
+                'sepia': {
+                    50: '#FBF8F3',
+                    100: '#F8F1E9',
+                    800: '#70543E',
+                    900: '#433426'
+                },
+
                 'biblioteca': {
                     50: '#fdf8f3',
                     100: '#f7f0e6',
@@ -31,5 +39,8 @@ export default {
         },
     },
 
-    plugins: [forms],
+    plugins: [
+        forms,
+        typography
+    ],
 };

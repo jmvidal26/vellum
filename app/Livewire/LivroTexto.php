@@ -7,7 +7,7 @@ use Livewire\Attributes\On;
 
 class LivroTexto extends Component
 {
-    public $conteudoLivro = '';
+    public $chapters = [];
     public $titulo = '';
     public $autores = '';
     public $capaUrl = '';
@@ -19,22 +19,23 @@ class LivroTexto extends Component
         ?string $titulo = null,
         ?string $autores = null,
         ?string $capa = null,
-        ?string $conteudo = null,
+        ?array $chapters = null,
         bool $isProse = true
     ) {
         $this->titulo = $titulo ?? 'Erro ao Carregar';
         $this->autores = $autores ?? 'Desconhecido';
         $this->capaUrl = $capa;
-        $this->conteudoLivro = $conteudo ?? 'Ocorreu um erro inesperado ao carregar o conteúdo do livro.';
+        $this->chapters = $chapters ?? [['title' => 'Erro', 'content' => 'Ocorreu um erro inesperado ao carregar o conteúdo do livro.']];
         $this->isProse = $isProse;
         $this->mostrar = true;
+        $this->dispatch('fechar-modal-detalhes');
     }
 
     #[On('close-reader')]
     public function fechar()
     {
         $this->mostrar = false;
-        $this->conteudoLivro = '';
+        $this->chapters = [];
         $this->titulo = '';
         $this->autores = '';
         $this->capaUrl = '';
