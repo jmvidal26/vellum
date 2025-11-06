@@ -3,6 +3,8 @@
 use App\Models\User;
 use App\Models\LivroFavorito;
 use App\Models\UsuarioLeitura;
+use App\Services\BadgeService;
+use App\Models\Badge;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
@@ -24,6 +26,9 @@ new class extends Component
     public int $andamentoCount = 0;
     public int $finalizadosCount = 0;
 
+    public $todosEmblemas = [];
+    public $meusEmblemasIds = [];
+
     protected $listeners = ['livroFinalizado' => 'atualizarContagens'];
 
     public function mount(): void
@@ -33,6 +38,12 @@ new class extends Component
         $this->email = $user->email;
 
         $this->atualizarContagens();
+
+        BadgeService::verificarEmblemas($user, 'antiguidade');
+
+        $this->todosEmblemas = Badge::orderBy('tipo')->orderBy('ordem')->orderBy('requisito')->get();
+
+        $this->meusEmblemasIds = $user->fresh()->badges->pluck('id')->toArray();
     }
 
     public function atualizarContagens(): void
@@ -255,6 +266,35 @@ new class extends Component
                 </div>
             </div>
 
+        </div>
+
+        <header class="mt-8 border-t border-biblioteca-200 pt-6">
+            <h2 class="text-2xl font-bold text-biblioteca-800">
+                {{ __('Minhas Conquistas') }}
+            </h2>
+            <p class="mt-2 text-biblioteca-600">
+                {{ __("Emblemas desbloqueados com sua atividade na plataforma.") }}
+            </p>
+        </header>
+
+        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-4">
+            @foreach($todosEmblemas as $badge)
+                @php
+                    $hasBadge = in_array($badge->id, $meusEmblemasIds);
+                @endphp
+
+                <div x-data x-tooltip.placement.top.delay.0="{{ $badge->nome }}: {{ $badge->descricao }}">
+                    <div class="relative transition-all duration-300 {{ $hasBadge ? 'opacity-100' : 'opacity-30 grayscale hover:opacity-70' }}">
+                        <img src="{{ asset($badge->imagem_url) }}" alt="{{ $badge->nome }}" class="w-full h-full object-cover rounded-lg aspect-square">
+
+                        @if($hasBadge)
+                            <div class="absolute -top-1 -right-1 bg-green-500 text-white rounded-full h-5 w-5 flex items-center justify-center border-2 border-white shadow">
+                                <i class="bi bi-check text-xs font-bold"></i>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endforeach
         </div>
 
         <header class="mt-6 border-t border-biblioteca-200 pt-6">

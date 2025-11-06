@@ -6,6 +6,7 @@ use App\Models\Livro;
 use App\Models\LivroAvaliacao;
 use App\Models\LivroFavorito;
 use App\Models\UsuarioLeitura;
+use App\Services\BadgeService;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Auth;
@@ -115,6 +116,9 @@ class LivroDetalhes extends Component
             LivroFavorito::create(['user_id' => auth()->id(), 'livro_id' => $this->livro->id]);
             $this->isFavorito = true;
         }
+
+        BadgeService::verificarEmblemas(Auth::user(), 'livros_favoritados');
+
         $this->dispatch('favoritoAtualizado');
     }
 

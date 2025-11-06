@@ -57,4 +57,9 @@ class User extends Authenticatable
 
         return $this->inscricaoClube !== null;
     }
+
+    public function badges()
+    {
+        return $this->belongsToMany(Badge::class, 'user_badge');
+    }
 }

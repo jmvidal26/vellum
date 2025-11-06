@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\UsuarioLeitura;
 use App\Models\User;
 use App\Models\Livro;
+use App\Services\BadgeService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\On;
@@ -129,6 +130,8 @@ class LivroTexto extends Component
             if ($user && isset($user->livros_lidos)) {
                 $user->increment('livros_lidos');
             }
+
+            BadgeService::verificarEmblemas(Auth::user(), 'livros_finalizados');
 
             $this->dispatch('livroFinalizado');
         }
