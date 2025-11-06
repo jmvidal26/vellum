@@ -106,19 +106,33 @@
                 </h3>
 
                 @if(auth()->user()->is_membro_clube)
-                    <form wire:submit="adicionarComentario" class="flex items-start gap-4 mb-8">
-                        <span class="block h-12 w-12 rounded-full bg-biblioteca-100 overflow-hidden">
-                            @if (Auth::user()->profile_photo_path)
-                                <img src="{{ asset('storage/' . Auth::user()->profile_photo_path) }}" alt="Sua foto" class="h-full w-full object-cover">
-                            @else
-                                <div class="h-full w-full flex items-center justify-center bg-biblioteca-200 text-biblioteca-600 font-semibold text-lg">
-                                    {{ \App\Services\CommumFunctions::getIniciais(Auth::user()->name) }}
-                                </div>
-                            @endif
-                        </span>
+                    <form wire:submit.prevent="adicionarComentario"
+                          class="flex items-start gap-4 mb-8"
+                          x-data
+                          @limpar-textarea.window="$refs.campoComentario.value = ''">
+
+    <span class="block h-12 w-12 rounded-full bg-biblioteca-100 overflow-hidden">
+        @if (Auth::user()->profile_photo_path)
+            <img src="{{ asset('storage/' . Auth::user()->profile_photo_path) }}" alt="Sua foto" class="h-full w-full object-cover">
+        @else
+            <div class="h-full w-full flex items-center justify-center bg-biblioteca-200 text-biblioteca-600 font-semibold text-lg">
+                {{ \App\Services\CommumFunctions::getIniciais(Auth::user()->name) }}
+            </div>
+        @endif
+    </span>
                         <div class="flex-1">
-                            <textarea wire:model="novoComentario" rows="3" placeholder="O que você achou do livro, {{ explode(' ', auth()->user()->name)[0] }}?" class="w-full p-3 rounded-lg border border-biblioteca-300 focus:outline-none focus:ring-2 focus:ring-biblioteca-500"></textarea>
-                            @error('novoComentario') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
+
+        <textarea
+            x-ref="campoComentario"
+            wire:model.defer="novoComentario"
+            rows="3"
+            placeholder="O que você achou do livro, {{ explode(' ', auth()->user()->name)[0] }}?"
+            class="w-full p-3 rounded-lg border border-biblioteca-300 focus:outline-none focus:ring-2 focus:ring-biblioteca-500"
+        ></textarea>
+                            @error('novoComentario')
+                            <span class="text-sm text-red-600">{{ $message }}</span>
+                            @enderror
+
 
                             @if (session('comentario_status'))
                                 <span class="text-sm text-green-600">{{ session('comentario_status') }}</span>
@@ -127,23 +141,29 @@
                             <button type="submit" class="mt-2 inline-flex items-center bg-biblioteca-700 text-white px-6 py-2 rounded-lg font-medium hover:bg-biblioteca-800 transition-colors duration-300">
                                 <span wire:loading.remove wire:target="adicionarComentario">Publicar Comentário</span>
                                 <span wire:loading wire:target="adicionarComentario" class="flex items-center">
-                                    <span class="border-t-transparent border-solid animate-spin rounded-full border-white border-2 h-4 w-4 mr-2"></span>
-                                    Publicando...
-                                </span>
+                <span class="border-t-transparent border-solid animate-spin rounded-full border-white border-2 h-4 w-4 mr-2"></span>
+                Publicando...
+            </span>
                             </button>
                         </div>
                     </form>
-                @else
-                    <div class="text-center p-6 bg-biblioteca-50 border border-biblioteca-200 rounded-lg">
-                        <i class="bi bi-lock-fill text-3xl text-biblioteca-500 mb-3"></i>
-                        <p class="font-semibold text-biblioteca-700">Apenas membros podem comentar.</p>
-                        <p class="text-biblioteca-600">Entre para o clube para participar da discussão!</p>
-                    </div>
-                @endif
+                    <div
+                        id="comentarios-container"
+                        class="space-y-6 max-h-[500px] overflow-y-auto px-2"
+                        x-data
+                        x-init="
+        const container = $el;
+        container.scrollTop = container.scrollHeight;
 
-                <div class="space-y-6">
+        container.addEventListener('scroll', () => {
+            if (container.scrollTop === 0) {
+                Livewire.dispatch('carregarMais');
+            }
+        });
+    "
+                    >
                     @forelse($comentarios as $comentario)
-                        <div class="flex items-start gap-4">
+                            <div class="flex items-start gap-4">
                             <span class="block h-12 w-12 rounded-full bg-biblioteca-100 overflow-hidden">
                                 @if ($comentario->user->profile_photo_path)
                                     <img src="{{ asset('storage/' . $comentario->user->profile_photo_path) }}" alt="Avatar" class="h-full w-full object-cover">
@@ -153,23 +173,29 @@
                                     </div>
                                 @endif
                             </span>
-                            <div class="flex-1 bg-biblioteca-50 border border-biblioteca-200 rounded-lg p-4">
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="font-bold text-biblioteca-800">{{ $comentario->user->name }}</span>
-                                    <span class="text-xs text-biblioteca-500">{{ $comentario->created_at->diffForHumans() }}</span>
+                                <div class="flex-1 bg-biblioteca-50 border border-biblioteca-200 rounded-lg p-4">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-bold text-biblioteca-800">{{ $comentario->user->name }}</span>
+                                        <span class="text-xs text-biblioteca-500">{{ $comentario->created_at->diffForHumans() }}</span>
+                                    </div>
+                                    <p class="text-biblioteca-700">{{ $comentario->texto }}</p>
                                 </div>
-                                <p class="text-biblioteca-700">{{ $comentario->texto }}</p>
                             </div>
-                        </div>
-                    @empty
-                        <div class="text-center py-6">
-                            <i class="bi bi-chat-quote text-4xl text-biblioteca-400 mb-3"></i>
-                            <p class="text-biblioteca-600">Nenhum comentário ainda.</p>
-                            <p class="text-sm text-biblioteca-500">Seja o primeiro a compartilhar suas ideias!</p>
-                        </div>
-                    @endforelse
-                </div>
-
+                        @empty
+                            <div class="text-center py-6">
+                                <i class="bi bi-chat-quote text-4xl text-biblioteca-400 mb-3"></i>
+                                <p class="text-biblioteca-600">Nenhum comentário ainda.</p>
+                                <p class="text-sm text-biblioteca-500">Seja o primeiro a compartilhar suas ideias!</p>
+                            </div>
+                        @endforelse
+                    </div>
+                @else
+                    <div class="text-center p-6 bg-biblioteca-50 border border-biblioteca-200 rounded-lg">
+                        <i class="bi bi-lock-fill text-3xl text-biblioteca-500 mb-3"></i>
+                        <p class="font-semibold text-biblioteca-700">Apenas membros podem comentar.</p>
+                        <p class="text-biblioteca-600">Entre para o clube para participar da discussão!</p>
+                    </div>
+                @endif
             </section>
         </main>
 

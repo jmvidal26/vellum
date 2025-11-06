@@ -19,10 +19,15 @@ class ClubeLivro extends Component
     public $sessaoAtiva;
     public $comentarios;
     public $membros;
+
+    public $quantidade = 10;
     public $sessoesAnteriores;
     public $novoComentario = '';
 
     public $livros;
+
+    protected $listeners = ['carregarMais'];
+
 
     public function mount()
     {
@@ -40,14 +45,7 @@ class ClubeLivro extends Component
 
         $this->recarregarMembros();
 
-        if ($this->sessaoAtiva) {
-            $this->comentarios = $this->sessaoAtiva->comentarios()
-                ->with('user')
-                ->latest()
-                ->get();
-        } else {
-            $this->comentarios = collect();
-        }
+        $this->carregarComentarios();
     }
 
     public function entrarClube()
@@ -82,20 +80,49 @@ class ClubeLivro extends Component
         $this->membros = User::whereIn('id', $membroIds)->get();
     }
 
+    public function carregarComentarios()
+    {
+        if (!$this->sessaoAtiva) {
+            $this->comentarios = collect();
+            return;
+        }
+
+        $this->comentarios = $this->sessaoAtiva->comentarios()
+            ->with('user')
+            ->latest()
+            ->take($this->quantidade)
+            ->get()
+            ->reverse();
+    }
+
+    #[On('carregarMais')]
+    public function carregarMais()
+    {
+        $this->quantidade += 10;
+        $this->carregarComentarios();
+    }
+
     public function adicionarComentario()
     {
-        $this->validate(['novoComentario' => 'required|string']);
+        $this->validate([
+            'novoComentario' => 'required|string',
+        ]);
+
         if (!$this->sessaoAtiva) return;
 
         $this->sessaoAtiva->comentarios()->create([
             'user_id' => auth()->id(),
-            'texto' => $this->novoComentario
+            'texto' => $this->novoComentario,
         ]);
 
-        $this->novoComentario = '';
-        $this->comentarios = $this->sessaoAtiva->comentarios()->with('user')->latest()->get();
+        $this->reset('novoComentario');
+        $this->carregarComentarios();
         session()->flash('comentario_status', 'Comentário publicado!');
+
+        $this->dispatch('limpar-textarea');
     }
+
+
 
     public function render()
     {
