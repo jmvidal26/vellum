@@ -1,4 +1,15 @@
 <div>
+    <div wire:loading.flex
+         class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black bg-opacity-75">
+
+        <svg class="animate-spin h-10 w-10 text-white mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+
+        <span class="text-white text-lg font-medium">Carregando Livro...</span>
+    </div>
+
     @if($mostrar)
         <div
             x-data="{
@@ -7,7 +18,8 @@
                     capa: {{ json_encode($capaUrl) }},
                     titulo: {{ json_encode($titulo) }},
                     autores: {{ json_encode($autores) }},
-                    isProse: {{ json_encode($isProse) }}
+                    isProse: {{ json_encode($isProse) }},
+                    initialProgress: {{ $progressoInicial }}
                 }),
 
                 showUi: true,
@@ -18,7 +30,7 @@
             x-cloak
             class="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-8"
         >
-            <div class="fixed inset-0 bg-black bg-opacity-80" @click="fecharLeitor()"></div>
+            <div class="fixed inset-0 bg-black bg-opacity-80" @click="$wire.salvarEFechar(currentChapterIndex)"></div>
 
             <div
                 class="bg-white rounded-xl shadow-xl w-full max-w-6xl h-full flex flex-col relative z-10 transition-colors duration-300"
@@ -106,7 +118,7 @@
                     </div>
 
                     <div class="w-auto flex justify-end">
-                        <button @click="fecharLeitor()"
+                        <button @click="$wire.salvarEFechar(currentChapterIndex)"
                                 class="transition-colors"
                                 :class="{
                                     'text-biblioteca-500 hover:text-biblioteca-700': theme === 'light',
@@ -244,6 +256,7 @@
                                     </span>
 
                                     <button @click="nextChapter()" :disabled="currentChapterIndex >= chapters.length"
+                                            x-show="currentChapterIndex < chapters.length"
                                             class="px-4 py-2 rounded-lg font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             :class="{
                                                 'bg-biblioteca-700 hover:bg-biblioteca-800': theme === 'light',
@@ -251,6 +264,25 @@
                                                 'bg-gray-600 hover:bg-gray-500': theme === 'dark'
                                             }">
                                         Seguinte <i class="bi bi-arrow-right ml-2"></i>
+                                    </button>
+
+                                    <button
+                                        x-show="currentChapterIndex === chapters.length"
+                                        wire:click="finalizarLivro"
+                                        wire:loading.attr="disabled"
+                                        class="px-4 py-2 rounded-lg font-medium text-white transition-colors bg-green-600 hover:bg-green-700 disabled:opacity-50"
+                                    >
+                                        <span wire:loading wire:target="finalizarLivro" class="inline-flex items-center gap-2">
+                                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Salvando...
+                                        </span>
+                                                                        <span wire:loading.remove wire:target="finalizarLivro" class="inline-flex items-center gap-2">
+                                            <i class="bi bi-check-circle"></i>
+                                            Finalizar Livro
+                                        </span>
                                     </button>
                                 </div>
                             </div>

@@ -53,10 +53,8 @@
             titulo: data.titulo || 'Título Desconhecido',
             autores: data.autores || 'Autor Desconhecido',
             isProse: data.isProse !== undefined ? data.isProse : true,
+            currentChapterIndex: data.initialProgress || 0,
 
-            isOpened: false,
-            showAnimation: false,
-            currentChapterIndex: 0,
             showToc: false,
             fontSizeIndex: 2,
             fontSizes: ['text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl'],
@@ -64,11 +62,6 @@
 
             init() {
                 document.body.classList.add('overflow-hidden');
-                this.scrollToTop();
-
-                this.$nextTick(() => {
-                    this.showAnimation = true;
-                });
 
                 let savedFontSize = localStorage.getItem('vellumReaderFontSize');
                 if (savedFontSize) {
@@ -78,32 +71,13 @@
                 this.$watch('theme', (value) => {
                     localStorage.setItem('vellumReaderTheme', value);
                 });
-
                 this.$watch('fontFamily', (value) => {
                     localStorage.setItem('vellumReaderFontFamily', value);
                 });
-
                 this.$watch('fontSizeClass', (value) => {
                     localStorage.setItem('vellumReaderFontSize', value);
                 });
-            },
 
-            abrirLivro() {
-                this.isOpened = true;
-                if (this.currentChapterIndex === 0) {
-                    this.goToChapter(0);
-                }
-            },
-
-            fecharLeitor() {
-                this.isOpened = false;
-
-                this.showAnimation = false;
-
-                setTimeout(() => {
-                    window.dispatchEvent(new CustomEvent('close-reader'));
-                    document.body.classList.remove('overflow-hidden');
-                }, 500);
             },
 
             goToChapter(index) {
@@ -123,16 +97,21 @@
                     this.scrollToTop();
                 }
             },
+
             scrollToTop() {
                 this.$nextTick(() => {
                     const contentArea = document.getElementById('reader-content-area');
                     if (contentArea) contentArea.scrollTop = 0;
                 });
             },
+
             changeFontSize(direction) {
-                let newIndex = this.fontSizeIndex + direction;
+                let currentIndex = this.fontSizes.indexOf(this.fontSizeClass);
+                if (currentIndex === -1) currentIndex = 2;
+
+                let newIndex = currentIndex + direction;
+
                 if (newIndex >= 0 && newIndex < this.fontSizes.length) {
-                    this.fontSizeIndex = newIndex;
                     this.fontSizeClass = this.fontSizes[newIndex];
                 }
             }

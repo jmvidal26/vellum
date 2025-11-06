@@ -1,12 +1,11 @@
 <div>
     @if($showModal && $livro)
         <div
-            x-data
-            x-init="$watch('show', value => {
-                        if(value) { document.body.classList.add('overflow-hidden'); }
-                        else { document.body.classList.remove('overflow-hidden'); }
-                     })"
             x-data="{ show: @entangle('showModal') }"
+            x-init="$watch('show', value => {
+                if(value) { document.body.classList.add('overflow-hidden'); }
+                else { document.body.classList.remove('overflow-hidden'); }
+             })"
             class="fixed inset-0 z-50 flex items-center justify-center p-4"
         >
 
@@ -155,7 +154,7 @@
 
                     @if($livro->resumo)
                         <div class="border-t border-biblioteca-200 pt-6">
-                            <h3 class="text-xl font-bold text-biblioteca-800 mb-3">Resumo</h3>
+                            <h3 class="text-xl font-bold text-biblioteca-800">Resumo</h3>
                             <p class="text-biblioteca-700 leading-relaxed text-justify whitespace-pre-wrap">
                                 {{ $livro->resumo }}
                             </p>
@@ -173,22 +172,11 @@
                         </button>
 
                         <button
-                            wire:click="abrirLivro"
+                            @click="$dispatch('carregarLivroPeloId', { livroId: {{ $livro->id }} })"
                             class="px-6 py-2 bg-biblioteca-700 text-white rounded-lg hover:bg-biblioteca-800 transition-colors font-medium flex items-center gap-2"
-                            wire:loading.attr="disabled"
-                            wire:target="abrirLivro" >
-
-                            <svg wire:loading wire:target="abrirLivro" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-
-                            <i wire:loading.remove wire:target="abrirLivro" class="bi bi-book"></i>
-
-                            <span wire:loading wire:target="abrirLivro">Abrindo...</span>
-
-                            <span wire:loading.remove wire:target="abrirLivro">Ler Livro</span>
-
+                        >
+                            <i class="bi bi-book"></i>
+                            <span>Ler Livro</span>
                         </button>
                     </div>
                 </div>
