@@ -2,7 +2,7 @@
 
 use App\Models\User;
 use App\Models\LivroFavorito;
-use App\Models\UserLivroStatus;
+use App\Models\UsuarioLeitura;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
@@ -22,6 +22,9 @@ new class extends Component
 
     public int $favoritosCount = 0;
     public int $andamentoCount = 0;
+    public int $finalizadosCount = 0;
+
+    protected $listeners = ['livroFinalizado' => 'atualizarContagens'];
 
     public function mount(): void
     {
@@ -29,13 +32,21 @@ new class extends Component
         $this->name = $user->name;
         $this->email = $user->email;
 
-        $this->favoritosCount = LivroFavorito::where('user_id', $user->id)->count();
+        $this->atualizarContagens();
+    }
 
-        if (Schema::hasTable('user_livro_status')) {
-            $this->andamentoCount = UserLivroStatus::where('user_id', $user->id)
-                ->where('status', 'em_andamento')
-                ->count();
-        }
+    public function atualizarContagens(): void
+    {
+        $userId = Auth::id();
+        $this->favoritosCount = LivroFavorito::where('user_id', $userId)->count();
+
+        $this->andamentoCount = UsuarioLeitura::where('user_id', $userId)
+            ->where('status', 'lendo')
+            ->count();
+
+        $this->finalizadosCount = UsuarioLeitura::where('user_id', $userId)
+            ->where('status', 'finalizado')
+            ->count();
     }
 
     public function updateProfileInformation(): void
@@ -212,7 +223,8 @@ new class extends Component
             @endif
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+
             <div class="bg-biblioteca-50 border border-biblioteca-200 rounded-lg p-4 flex items-center gap-4">
                 <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-red-100 rounded-full">
                     <i class="bi bi-heart-fill text-xl text-red-600"></i>
@@ -228,10 +240,21 @@ new class extends Component
                     <i class="bi bi-book-half text-xl text-blue-600"></i>
                 </div>
                 <div>
-                    <div classs="text-2xl font-bold text-biblioteca-800">{{ $andamentoCount }}</div>
+                    <div class="text-2xl font-bold text-biblioteca-800">{{ $andamentoCount }}</div>
                     <div class="text-sm font-medium text-biblioteca-600">Livros em Andamento</div>
                 </div>
             </div>
+
+            <div class="bg-biblioteca-50 border border-biblioteca-200 rounded-lg p-4 flex items-center gap-4">
+                <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-green-100 rounded-full">
+                    <i class="bi bi-check2-circle text-xl text-green-600"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-biblioteca-800">{{ $finalizadosCount }}</div>
+                    <div class="text-sm font-medium text-biblioteca-600">Livros Finalizados</div>
+                </div>
+            </div>
+
         </div>
 
         <header class="mt-6 border-t border-biblioteca-200 pt-6">
