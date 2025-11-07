@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Livro;
 use App\Models\LivroFavorito;
+use App\Models\ClubeSessao;
 use App\Services\CommumFunctions;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -24,6 +25,7 @@ class Dashboard extends Component
     public $topFiccao;
     public $topHistoria;
     public $meusFavoritos;
+    public $sessaoAtiva;
 
     public function mount()
     {
@@ -45,6 +47,10 @@ class Dashboard extends Component
         $this->topHorror = $this->buscarLivrosPorGenero('horror');
         $this->topFiccao = $this->buscarLivrosPorGenero('ficção');
         $this->topHistoria = $this->buscarLivrosPorGenero('históri');
+
+        $this->sessaoAtiva = ClubeSessao::with('livro')
+            ->where('status', 'ativo')
+            ->first();
 
         if (auth()->check()) {
             $favoritoIds = LivroFavorito::where('user_id', auth()->id())->pluck('livro_id');

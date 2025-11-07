@@ -33,8 +33,18 @@
                 <i class="bi bi-people text-4xl text-biblioteca-600 mb-3"></i>
                 <h3 class="font-bold text-biblioteca-800 mb-2">Clube do Livro</h3>
                 <div class="text-biblioteca-600 text-sm mb-4">
-                    <p>*Ideia* Nosso livro deste mês:</p>
-                    <p class="text-2xl font-bold text-biblioteca-700 mt-1">*Ideia* Duna</p>
+                    <p>Nosso livro deste mês:</p>
+
+                    @if ($sessaoAtiva && $sessaoAtiva->livro)
+                        <p class="text-2xl font-bold text-biblioteca-700 mt-1 truncate" title="{{ $sessaoAtiva->livro->titulo }}">
+                            {{ $sessaoAtiva->livro->titulo }}
+                        </p>
+                    @else
+                        <p class="text-lg font-medium text-biblioteca-500 mt-1">
+                            Nenhum livro definido.
+                        </p>
+                    @endif
+
                 </div>
             </div>
 
