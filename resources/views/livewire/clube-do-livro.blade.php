@@ -43,7 +43,8 @@
             @if ($sessaoAtiva)
                 <section class="bg-white rounded-xl shadow-md border border-biblioteca-200 overflow-hidden">
                     <div class="flex flex-col md:flex-row">
-                        <div class="md:w-1/4">
+
+                        <div class="md:w-80 flex-shrink-0">
                             @php
                                 $imagemUrl = $sessaoAtiva->livro->formatos
                                 ->where('media_type', 'image/jpeg')
@@ -54,7 +55,7 @@
                                  class="w-full h-full object-cover">
                         </div>
 
-                        <div class="md:w-2/3 p-6 md:p-8 flex flex-col">
+                        <div class="flex-1 p-6 md:p-8 flex flex-col min-w-0">
                             <div>
                                 <span class="inline-block bg-biblioteca-100 text-biblioteca-700 text-sm font-semibold px-3 py-1 rounded-full mb-4">
                                     Livro do Mês
@@ -63,8 +64,9 @@
                                 <p class="text-xl text-biblioteca-600 mt-1 mb-4">
                                     por {{ $sessaoAtiva->livro->autores->pluck('nome')->implode(', ') }}
                                 </p>
-                                <p class="text-biblioteca-700 leading-relaxed mb-6">
-                                    {{ $sessaoAtiva->livro->sinopse ?? 'Uma breve descrição do livro...' }}
+
+                                <p class="text-biblioteca-700 leading-relaxed mb-6 max-h-48 overflow-y-auto pr-2">
+                                    {{ $sessaoAtiva->livro->resumo ?? 'Uma breve descrição do livro...' }}
                                 </p>
                             </div>
 
