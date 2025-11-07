@@ -117,6 +117,17 @@
             }
         }
     }
+
+    function formatarHoraLocal(isoTimestamp) {
+        if (!isoTimestamp) return '';
+
+        const data = new Date(isoTimestamp);
+
+        const horas = data.getHours().toString().padStart(2, '0');
+        const minutos = data.getMinutes().toString().padStart(2, '0');
+
+        return `${horas}:${minutos}`;
+    }
 </script>
 @livewireScripts
 </body>

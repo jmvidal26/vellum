@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Dashboard;
 use App\Livewire\Acervo;
 use App\Livewire\ClubeLivro;
+use App\Livewire\ChatHub;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -33,6 +34,10 @@ Route::middleware(['auth'])->group(function () {
     Route::view('profile', 'profile')
         ->middleware(['auth'])
         ->name('profile');
+
+    Route::get('/mensagens', ChatHub::class)
+        ->middleware('auth')
+        ->name('chat.hub');
 });
 
 require __DIR__.'/auth.php';

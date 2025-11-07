@@ -7,27 +7,37 @@ use App\Models\ClubeMembro;
 use App\Models\ClubeSessao;
 use App\Models\Livro;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\On;
 
 #[Layout('components.layouts.menu')]
 #[Title('Clube do Livro')]
 class ClubeLivro extends Component
 {
     public $sessaoAtiva;
-    public $comentarios;
-    public $membros;
-
-    public $quantidade = 10;
-    public $sessoesAnteriores;
     public $novoComentario = '';
+    public $quantidade = 10;
 
-    public $livros;
+    protected ?Collection $comentarios = null;
+    protected ?Collection $membros = null;
+    protected ?Collection $sessoesAnteriores = null;
+    protected ?Collection $livros = null;
 
-    protected $listeners = ['carregarMais'];
-
+    protected function rules()
+    {
+        return [
+            'novoComentario' => 'required|string|max:1000',
+        ];
+    }
+    protected $messages = [
+        'novoComentario.required' => 'O comentário não pode estar em branco.',
+        'novoComentario.string' => 'O comentário deve ser um texto.',
+        'novoComentario.max' => 'O comentário não pode ter mais de 1000 caracteres.',
+    ];
 
     public function mount()
     {
@@ -77,7 +87,13 @@ class ClubeLivro extends Component
     public function recarregarMembros()
     {
         $membroIds = ClubeMembro::pluck('user_id');
-        $this->membros = User::whereIn('id', $membroIds)->get();
+        $userId = auth()->id();
+
+        $this->membros = User::whereIn('id', $membroIds)
+
+            ->orderByRaw("id = ? DESC", [$userId])
+            ->orderBy('name', 'asc')
+            ->get();
     }
 
     public function carregarComentarios()
@@ -104,9 +120,7 @@ class ClubeLivro extends Component
 
     public function adicionarComentario()
     {
-        $this->validate([
-            'novoComentario' => 'required|string',
-        ]);
+        $this->validate();
 
         if (!$this->sessaoAtiva) return;
 
@@ -122,10 +136,13 @@ class ClubeLivro extends Component
         $this->dispatch('limpar-textarea');
     }
 
-
-
     public function render()
     {
-        return view('livewire.clube-do-livro');
+        return view('livewire.clube-do-livro', [
+            'comentarios' => $this->comentarios,
+            'membros' => $this->membros,
+            'sessoesAnteriores' => $this->sessoesAnteriores,
+            'livros' => $this->livros,
+        ]);
     }
 }

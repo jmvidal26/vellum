@@ -43,7 +43,7 @@
             @if ($sessaoAtiva)
                 <section class="bg-white rounded-xl shadow-md border border-biblioteca-200 overflow-hidden">
                     <div class="flex flex-col md:flex-row">
-                        <div class="md:w-1/3">
+                        <div class="md:w-1/4">
                             @php
                                 $imagemUrl = $sessaoAtiva->livro->formatos
                                 ->where('media_type', 'image/jpeg')
@@ -69,19 +69,7 @@
                             </div>
 
                             <div class="mt-auto pt-6 border-t border-biblioteca-200 space-y-4">
-                                <div>
-                                    <h4 class="font-semibold text-biblioteca-800 flex items-center gap-2">
-                                        <i class="bi bi-calendar-event text-biblioteca-700"></i>
-                                        Próxima Discussão ao Vivo
-                                    </h4>
-                                    <p class="text-biblioteca-600 ml-6">{{ \Carbon\Carbon::parse($sessaoAtiva->data_discussao)->format('d \de F, H:i') }}</p>
-                                </div>
-
                                 <div class="flex flex-col sm:flex-row gap-4">
-                                    <a href="{{ $sessaoAtiva->livro->formatos->first()->url_download ?? '#' }}" class="w-full sm:w-auto text-center inline-block bg-biblioteca-700 text-white px-8 py-3 rounded-lg font-medium hover:bg-biblioteca-800 transition-colors duration-300">
-                                        <i class="bi bi-download mr-2"></i>
-                                        Baixar E-book
-                                    </a>
                                     <a href="#discussao" class="w-full sm:w-auto text-center inline-block bg-biblioteca-200 text-biblioteca-700 px-8 py-3 rounded-lg font-medium hover:bg-biblioteca-300 transition-colors duration-300">
                                         <i class="bi bi-chat-dots mr-2"></i>
                                         Ir para Discussão
@@ -110,69 +98,70 @@
                           class="flex items-start gap-4 mb-8"
                           x-data
                           @limpar-textarea.window="$refs.campoComentario.value = ''">
-
-    <span class="block h-12 w-12 rounded-full bg-biblioteca-100 overflow-hidden">
-        @if (Auth::user()->profile_photo_path)
-            <img src="{{ asset('storage/' . Auth::user()->profile_photo_path) }}" alt="Sua foto" class="h-full w-full object-cover">
-        @else
-            <div class="h-full w-full flex items-center justify-center bg-biblioteca-200 text-biblioteca-600 font-semibold text-lg">
-                {{ \App\Services\CommumFunctions::getIniciais(Auth::user()->name) }}
-            </div>
-        @endif
-    </span>
-                        <div class="flex-1">
-
-        <textarea
-            x-ref="campoComentario"
-            wire:model.defer="novoComentario"
-            rows="3"
-            placeholder="O que você achou do livro, {{ explode(' ', auth()->user()->name)[0] }}?"
-            class="w-full p-3 rounded-lg border border-biblioteca-300 focus:outline-none focus:ring-2 focus:ring-biblioteca-500"
-        ></textarea>
-                            @error('novoComentario')
-                            <span class="text-sm text-red-600">{{ $message }}</span>
-                            @enderror
-
-
-                            @if (session('comentario_status'))
-                                <span class="text-sm text-green-600">{{ session('comentario_status') }}</span>
+                        <span class="block h-12 w-12 rounded-full bg-biblioteca-100 overflow-hidden">
+                            @if (Auth::user()->profile_photo_path)
+                                <img src="{{ asset('storage/' . Auth::user()->profile_photo_path) }}" alt="Sua foto" class="h-full w-full object-cover">
+                            @else
+                                <div class="h-full w-full flex items-center justify-center bg-biblioteca-200 text-biblioteca-600 font-semibold text-lg">
+                                    {{ \App\Services\CommumFunctions::getIniciais(Auth::user()->name) }}
+                                </div>
                             @endif
-
+                        </span>
+                        <div class="flex-1">
+                            <textarea
+                                x-ref="campoComentario"
+                                wire:model.defer="novoComentario"
+                                rows="3"
+                                placeholder="O que você achou do livro, {{ explode(' ', auth()->user()->name)[0] }}?"
+                                class="w-full p-3 rounded-lg border border-biblioteca-300 focus:outline-none focus:ring-2 focus:ring-biblioteca-500"
+                            ></textarea>
                             <button type="submit" class="mt-2 inline-flex items-center bg-biblioteca-700 text-white px-6 py-2 rounded-lg font-medium hover:bg-biblioteca-800 transition-colors duration-300">
                                 <span wire:loading.remove wire:target="adicionarComentario">Publicar Comentário</span>
                                 <span wire:loading wire:target="adicionarComentario" class="flex items-center">
-                <span class="border-t-transparent border-solid animate-spin rounded-full border-white border-2 h-4 w-4 mr-2"></span>
-                Publicando...
-            </span>
+                                    <span class="border-t-transparent border-solid animate-spin rounded-full border-white border-2 h-4 w-4 mr-2"></span>
+                                    Publicando...
+                                </span>
                             </button>
+
+                            <div class="mt-2">
+                                @error('novoComentario')
+                                <span class="block text-sm text-red-600">{{ $message }}</span>
+                                @enderror
+
+                                @if (session('comentario_status'))
+                                    <span class="block text-sm text-green-600">{{ session('comentario_status') }}</span>
+                                @endif
+                            </div>
+
                         </div>
                     </form>
+
                     <div
                         id="comentarios-container"
                         class="space-y-6 max-h-[500px] overflow-y-auto px-2"
                         x-data
                         x-init="
-        const container = $el;
-        container.scrollTop = container.scrollHeight;
+                            const container = $el;
+                            container.scrollTop = container.scrollHeight;
 
-        container.addEventListener('scroll', () => {
-            if (container.scrollTop === 0) {
-                Livewire.dispatch('carregarMais');
-            }
-        });
-    "
+                            container.addEventListener('scroll', () => {
+                                if (container.scrollTop === 0) {
+                                    Livewire.dispatch('carregarMais');
+                                }
+                            });
+                        "
                     >
-                    @forelse($comentarios as $comentario)
+                        @forelse($comentarios ?? [] as $comentario)
                             <div class="flex items-start gap-4">
-                            <span class="block h-12 w-12 rounded-full bg-biblioteca-100 overflow-hidden">
-                                @if ($comentario->user->profile_photo_path)
-                                    <img src="{{ asset('storage/' . $comentario->user->profile_photo_path) }}" alt="Avatar" class="h-full w-full object-cover">
-                                @else
-                                    <div class="h-full w-full flex items-center justify-center bg-biblioteca-100 text-biblioteca-600 font-semibold">
-                                        {{ \App\Services\CommumFunctions::getIniciais($comentario->user->name) }}
-                                    </div>
-                                @endif
-                            </span>
+                                <span class="block h-12 w-12 rounded-full bg-biblioteca-100 overflow-hidden">
+                                    @if ($comentario->user->profile_photo_path)
+                                        <img src="{{ asset('storage/' . $comentario->user->profile_photo_path) }}" alt="Avatar" class="h-full w-full object-cover">
+                                    @else
+                                        <div class="h-full w-full flex items-center justify-center bg-biblioteca-100 text-biblioteca-600 font-semibold">
+                                            {{ \App\Services\CommumFunctions::getIniciais($comentario->user->name) }}
+                                        </div>
+                                    @endif
+                                </span>
                                 <div class="flex-1 bg-biblioteca-50 border border-biblioteca-200 rounded-lg p-4">
                                     <div class="flex justify-between items-center mb-1">
                                         <span class="font-bold text-biblioteca-800">{{ $comentario->user->name }}</span>
@@ -204,27 +193,38 @@
                 <div class="bg-white rounded-xl shadow-md border border-biblioteca-200 p-5">
                     <h3 class="text-xl font-bold text-biblioteca-800 mb-4 flex items-center gap-2">
                         <i class="bi bi-people-fill"></i>
-                        Membros ({{ $membros->count() }})
+                        Membros ({{ $membros?->count() ?? 0 }})
                     </h3>
                     <div class="flex flex-wrap gap-2">
-                        @foreach($membros->take(12) as $membro)
+                        @foreach($membros?->take(12) ?? [] as $membro)
                             @php $isCurrentUser = $membro->id === auth()->id(); @endphp
 
-                            @if ($membro->profile_photo_path)
-                                <img src="{{ asset('storage/' . $membro->profile_photo_path) }}"
-                                     alt="{{ $membro->name }}"
-                                     class="w-10 h-10 rounded-full object-cover @if($isCurrentUser) border-2 border-biblioteca-700 @endif"
-                                     title="{{ $membro->name }} @if($isCurrentUser) (Você) @endif">
-                            @else
-                                <div class="w-10 h-10 rounded-full flex items-center justify-center font-semibold
-                                     @if($isCurrentUser) bg-biblioteca-700 text-white @else bg-biblioteca-200 text-biblioteca-600 @endif"
-                                     title="{{ $membro->name }} @if($isCurrentUser) (Você) @endif">
-                                    {{ \App\Services\CommumFunctions::getIniciais($membro->name) }}
-                                </div>
-                            @endif
+                            <button
+                                type="button"
+                                @if(!$isCurrentUser)
+                                    wire:click.prevent="$dispatch('abrirChat', { userId: {{ $membro->id }} })"
+                                class="cursor-pointer transition-opacity duration-200 hover:opacity-75"
+                                title="Conversar com {{ $membro->name }}"
+                                @else
+                                    class=""
+                                title="{{ $membro->name }} (Você)"
+                                disabled
+                                @endif
+                            >
+                                @if ($membro->profile_photo_path)
+                                    <img src="{{ asset('storage/' . $membro->profile_photo_path) }}"
+                                         alt="{{ $membro->name }}"
+                                         class="w-10 h-10 rounded-full object-cover @if($isCurrentUser) border-2 border-biblioteca-700 @endif">
+                                @else
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-semibold
+                                         @if($isCurrentUser) bg-biblioteca-700 text-white @else bg-biblioteca-200 text-biblioteca-600 @endif">
+                                        {{ \App\Services\CommumFunctions::getIniciais($membro->name) }}
+                                    </div>
+                                @endif
+                            </button>
                         @endforeach
 
-                        @if($membros->count() > 12)
+                        @if(($membros?->count() ?? 0) > 12)
                             <div class="w-10 h-10 rounded-full flex items-center justify-center bg-biblioteca-100 text-biblioteca-600 font-semibold"
                                  title="e mais {{ $membros->count() - 12 }}...">
                                 +{{ $membros->count() - 12 }}
@@ -238,10 +238,8 @@
                         <i class="bi bi-book-half"></i>
                         Livros Anteriores
                     </h3>
-
                     <div class="space-y-4">
-
-                        @forelse($sessoesAnteriores as $sessao)
+                        @forelse($sessoesAnteriores ?? [] as $sessao)
                             <a href="#" class="flex items-center gap-3 group">
                                 <img src="{{ $imagemUrl ?? 'https://placehold.co/50x75/c08550/FFFFFF?text=Capa' }}"
                                      alt="Capa {{ $sessao->livro->titulo }}"
@@ -261,65 +259,63 @@
         </aside>
     </div>
 
-    <div wire:ignore.self class="mt-12">
+    <div wire:ignore.self class="mt-12"
+         x-data="carousel()"
+         x-init="init()">
+
         <h3 id="downloads-title" class="text-2xl font-bold text-biblioteca-800 mb-6 flex items-center gap-2">
             <i class="bi bi-graph-up"></i>
             <span>Outros Clubes</span>
         </h3>
 
-        <div >
-            <section class="splide book-carousel" id="book-carousel-clube-livro" aria-labelledby="downloads-title">
+        <div>
+            <section class="splide book-carousel" x-ref="splide" aria-labelledby="downloads-title">
                 <div class="splide__track pt-4">
                     <ul class="splide__list">
-                        @foreach($livros as $livro)
-                                <livewire:livro-card
+                        @foreach($livros ?? [] as $livro)
+                            <livewire:livro-card
                                 :livro="$livro"
                                 :key="$livro->id"
-                                />
+                            />
                         @endforeach
                     </ul>
                 </div>
             </section>
         </div>
     </div>
+
     <livewire:livro-detalhes />
     <livewire:livro-texto />
+    <livewire:chat-privado />
 </div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const splideOptions = {
-            type: 'slide',
-            perPage: 5,
-            perMove: 1,
-            gap: '1rem',
-            pagination: false,
-            breakpoints: {
-                1024: { perPage: 10 },
-                768: { perPage: 3 },
-                640: { perPage: 2 }
-            }
-        };
+    function carousel() {
+        return {
+            init() {
+                this.$nextTick(() => {
+                    const carouselElement = this.$refs.splide;
 
-        function initializeCarousel() {
-            const carouselElement = document.getElementById('book-carousel-clube-livro');
+                    if (carouselElement && !carouselElement._splide) {
+                        const splide = new Splide(carouselElement, {
+                            type: 'slide',
+                            perPage: 5,
+                            perMove: 1,
+                            gap: '1rem',
+                            pagination: false,
+                            breakpoints: {
+                                1024: { perPage: 10 },
+                                768: { perPage: 3 },
+                                640: { perPage: 2 }
+                            }
+                        });
 
-            if (carouselElement && !carouselElement._splide) {
-                if (window.clubeLivroCarousel) {
-                    window.clubeLivroCarousel.destroy();
-                }
-
-                window.clubeLivroCarousel = new Splide(carouselElement, splideOptions);
-                window.clubeLivroCarousel.mount();
-                carouselElement._splide = true;
-
-                console.log('Carrossel do Clube do Livro inicializado');
+                        splide.mount();
+                        carouselElement._splide = true;
+                    }
+                });
             }
         }
+    }
 
-        initializeCarousel();
-
-        document.addEventListener('livewire:load', initializeCarousel);
-        document.addEventListener('livewire:update', initializeCarousel);
-    });
 </script>
-
