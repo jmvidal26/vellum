@@ -184,4 +184,12 @@
         </div>
     @endif
 </div>
+<script>
+    document.addEventListener('livewire:initialized', () => {
+        Livewire.on('modalFechado', () => {
+            document.body.classList.remove('overflow-hidden');
+        });
+    });
+</script>
+
 

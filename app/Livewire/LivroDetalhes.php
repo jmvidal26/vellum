@@ -130,6 +130,8 @@ class LivroDetalhes extends Component
         $this->userRating = 0;
         $this->mainGenres = [];
         $this->allShelves = [];
+
+        $this->dispatch('modal-fechado');
     }
 
     public function render()
