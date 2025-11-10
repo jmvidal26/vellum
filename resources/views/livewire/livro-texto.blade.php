@@ -40,7 +40,6 @@
                     'bg-gray-900': theme === 'dark'
                 }"
             >
-
                 <div
                     x-show="showUi || currentChapterIndex === 0"
                     x-transition:enter="transition ease-out duration-300"
@@ -51,25 +50,25 @@
                     x-transition:leave-end="-translate-y-full opacity-0"
                     class="flex justify-between items-center p-4 border-b transition-colors"
                     :class="{
-        'border-biblioteca-200': theme === 'light',
-        'border-sepia-800/20': theme === 'sepia',
-        'border-gray-700': theme === 'dark'
-    }"
+                        'border-biblioteca-200': theme === 'light',
+                        'border-sepia-800/20': theme === 'sepia',
+                        'border-gray-700': theme === 'dark'
+                    }"
                 >
                     <div class="w-2/5 min-w-0">
                         <h2 class="text-lg font-bold truncate"
                             :class="{
-                'text-biblioteca-800': theme === 'light',
-                'text-sepia-800': theme === 'sepia',
-                'text-gray-200': theme === 'dark'
-            }"
+                                'text-biblioteca-800': theme === 'light',
+                                'text-sepia-800': theme === 'sepia',
+                                'text-gray-200': theme === 'dark'
+                            }"
                             x-text="titulo"></h2>
                         <p class="text-sm truncate"
                            :class="{
-                'text-biblioteca-600': theme === 'light',
-                'text-sepia-800/80': theme === 'sepia',
-                'text-gray-400': theme === 'dark'
-           }"
+                                'text-biblioteca-600': theme === 'light',
+                                'text-sepia-800/80': theme === 'sepia',
+                                'text-gray-400': theme === 'dark'
+                           }"
                            x-text="autores"></p>
                     </div>
 
@@ -242,13 +241,15 @@
                                 <div class="flex justify-between items-center">
 
                                     <button @click="prevChapter()" :disabled="currentChapterIndex === 0"
-                                            class="px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            title="Capítulo Anterior"
+                                            class="p-2 sm:px-4 sm:py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center"
                                             :class="{
                                                 'bg-biblioteca-200 text-biblioteca-700 hover:bg-biblioteca-300': theme === 'light',
                                                 'bg-sepia-100 text-sepia-800 hover:bg-sepia-100/80': theme === 'sepia',
                                                 'bg-gray-700 text-gray-300 hover:bg-gray-600': theme === 'dark'
                                             }">
-                                        <i class="bi bi-arrow-left mr-2"></i> Anterior
+                                        <i class="bi bi-arrow-left sm:mr-2"></i>
+                                        <span class="hidden sm:inline">Anterior</span>
                                     </button>
 
                                     <span class="text-sm font-medium">
@@ -256,40 +257,44 @@
                                     </span>
 
                                     <button @click="nextChapter()" :disabled="currentChapterIndex >= chapters.length"
+                                            title="Próximo Capítulo"
                                             x-show="currentChapterIndex < chapters.length"
-                                            class="px-4 py-2 rounded-lg font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            class="p-2 sm:px-4 sm:py-2 rounded-lg font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center"
                                             :class="{
                                                 'bg-biblioteca-700 hover:bg-biblioteca-800': theme === 'light',
                                                 'bg-sepia-800 hover:bg-sepia-900': theme === 'sepia',
                                                 'bg-gray-600 hover:bg-gray-500': theme === 'dark'
                                             }">
-                                        Seguinte <i class="bi bi-arrow-right ml-2"></i>
+                                        <span class="hidden sm:inline">Seguinte</span>
+                                        <i class="bi bi-arrow-right sm:ml-2"></i>
                                     </button>
 
                                     <button
                                         x-show="currentChapterIndex === chapters.length"
                                         wire:click="finalizarLivro"
                                         wire:loading.attr="disabled"
-                                        class="px-4 py-2 rounded-lg font-medium text-white transition-colors bg-green-600 hover:bg-green-700 disabled:opacity-50"
+                                        title="Finalizar Livro"
+                                        class="flex items-center justify-center p-2 sm:px-4 sm:py-2 rounded-lg font-medium text-white transition-colors bg-green-600 hover:bg-green-700 disabled:opacity-50 whitespace-nowrap"
                                     >
-                                        <span wire:loading wire:target="finalizarLivro" class="inline-flex items-center gap-2">
+                                        <span wire:loading wire:target="finalizarLivro" class="flex items-center">
                                             <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
-                                            Salvando...
+                                            <span class="hidden sm:inline sm:ml-2">Salvando...</span>
                                         </span>
-                                                                        <span wire:loading.remove wire:target="finalizarLivro" class="inline-flex items-center gap-2">
+
+                                        <span wire:loading.remove wire:target="finalizarLivro" class="flex items-center">
                                             <i class="bi bi-check-circle"></i>
-                                            Finalizar Livro
+                                            <span class="hidden sm:inline sm:ml-2">Finalizar</span>
                                         </span>
                                     </button>
                                 </div>
                             </div>
+                        </div>
                     </div>
 
                 </div>
-
             </div>
         </div>
     @endif

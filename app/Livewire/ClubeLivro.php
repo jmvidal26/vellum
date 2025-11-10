@@ -7,6 +7,7 @@ use App\Models\ClubeMembro;
 use App\Models\ClubeSessao;
 use App\Models\Livro;
 use App\Models\User;
+use App\Services\BadgeService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -134,6 +135,8 @@ class ClubeLivro extends Component
         session()->flash('comentario_status', 'Comentário publicado!');
 
         $this->dispatch('limpar-textarea');
+
+        BadgeService::verificarEmblemas(auth()->user(), 'comentarios');
     }
 
     public function render()

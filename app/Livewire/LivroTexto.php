@@ -70,6 +70,30 @@ class LivroTexto extends Component
             }
         }
 
+        if ($livro->parsed_content) {
+            $this->chapters = $livro->parsed_content;
+            $this->isProse = !preg_match('/(ACT [IVXLCDM]+|SCENE [IVXLCDM]+)/i', $this->chapters[0]['content'] ?? '');
+            $this->mostrar = true;
+            $this->dispatch('fechar-modal-detalhes');
+            return;
+        }
+
+        $url = null;
+        $isHtml = false;
+        $formato = $livro->formatos->first(fn ($f) => str_starts_with($f->media_type, 'text/plain'));
+        if ($formato) $url = $formato->url;
+        if (!$url) {
+            $formatoHtml = $livro->formatos->first(fn ($f) => str_starts_with($f->media_type, 'text/html'));
+            if ($formatoHtml) {
+                $url = $formatoHtml->url;
+                $isHtml = true;
+            }
+        }
+        if (!$url) {
+            $formatoTxt = $livro->formatos->first(fn ($f) => str_contains($f->url, '.txt'));
+            $url = $formatoTxt?->url;
+        }
+
         if ($url) {
             try {
                 $conteudo = @file_get_contents($url);
@@ -78,6 +102,10 @@ class LivroTexto extends Component
                 $this->isProse = !preg_match('/(ACT [IVXLCDM]+|SCENE [IVXLCDM]+)/i', $conteudo);
                 $conteudoSemiLimpo = $isHtml ? $this->limparHtmlParaTxt($conteudo) : $this->limparTextoGutenberg($conteudo);
                 $this->chapters = $this->parseChapters($conteudoSemiLimpo, $this->isProse);
+
+
+                $livro->parsed_content = $this->chapters;
+                $livro->save();
 
             } catch (\Exception $e) {
                 $this->chapters = [['title' => 'Erro', 'content' => "Erro ao carregar o livro: " . $e->getMessage()]];
@@ -125,11 +153,6 @@ class LivroTexto extends Component
                     'status' => 'finalizado'
                 ]
             );
-
-            $user = User::find(Auth::id());
-            if ($user && isset($user->livros_lidos)) {
-                $user->increment('livros_lidos');
-            }
 
             BadgeService::verificarEmblemas(Auth::user(), 'livros_finalizados');
 

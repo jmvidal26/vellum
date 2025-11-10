@@ -40,6 +40,9 @@ new class extends Component
         $this->atualizarContagens();
 
         BadgeService::verificarEmblemas($user, 'antiguidade');
+        BadgeService::verificarEmblemas($user, 'livros_finalizados');
+        BadgeService::verificarEmblemas($user, 'livros_favoritados');
+        BadgeService::verificarEmblemas($user, 'comentarios');
 
         $this->todosEmblemas = Badge::orderBy('tipo')->orderBy('ordem')->orderBy('requisito')->get();
 
@@ -112,6 +115,17 @@ new class extends Component
         }
         $user->sendEmailVerificationNotification();
         Session::flash('status', 'verification-link-sent');
+    }
+
+    public function getBadgeTypeTitle(string $tipo): string
+    {
+        return match ($tipo) {
+            'livros_finalizados' => 'Conquistas de Leitura',
+            'livros_favoritados' => 'Conquistas de Colecionador',
+            'comentarios' => 'Conquistas de Comunidade',
+            'antiguidade' => 'Conquistas de Veterano',
+            default => 'Outras Conquistas',
+        };
     }
 }; ?>
 
@@ -269,23 +283,73 @@ new class extends Component
         </div>
 
         <header class="mt-8 border-t border-biblioteca-200 pt-6">
-            <h2 class="text-2xl font-bold text-biblioteca-800">
-                {{ __('Minhas Conquistas') }}
-            </h2>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-2xl font-bold text-biblioteca-800">
+                    {{ __('Minhas Conquistas') }}
+                </h2>
+
+                <span class="mt-1 sm:mt-0 text-lg font-medium text-biblioteca-600">
+                    {{ count($meusEmblemasIds) }} / {{ count($todosEmblemas) }}
+                </span>
+            </div>
             <p class="mt-2 text-biblioteca-600">
                 {{ __("Emblemas desbloqueados com sua atividade na plataforma.") }}
             </p>
         </header>
 
-        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-4">
+        <div class="flex flex-wrap justify-center gap-4">
+
+            @php $currentType = ''; @endphp
+
             @foreach($todosEmblemas as $badge)
                 @php
                     $hasBadge = in_array($badge->id, $meusEmblemasIds);
+
+                    $tierClasses = '';
+
+                    if ($hasBadge) {
+                        $tierClasses = 'bg-orange-600 text-white shadow-lg shadow-orange-600/30';
+
+                        switch ($badge->tier) {
+                            case 'silver':
+                                $tierClasses = 'bg-gray-400 text-gray-900 shadow-lg shadow-gray-400/30';
+                                break;
+                            case 'gold':
+                                $tierClasses = 'bg-yellow-400 text-yellow-900 shadow-lg shadow-yellow-400/30';
+                                break;
+
+                            case 'platinum':
+                                $tierClasses = 'bg-cyan-400 text-cyan-900 shadow-lg shadow-cyan-400/30';
+                                break;
+
+                            case 'diamond':
+                                $tierClasses = 'bg-violet-400 text-violet-900 shadow-lg shadow-violet-400/30';
+                                break;
+                            case 'bronze':
+                            default:
+                                break;
+                        }
+                    } else {
+                        $tierClasses = 'bg-biblioteca-100 text-biblioteca-400 opacity-60 grayscale hover:opacity-100 hover:grayscale-0';
+                    }
                 @endphp
 
-                <div x-data x-tooltip.placement.top.delay.0="{{ $badge->nome }}: {{ $badge->descricao }}">
-                    <div class="relative transition-all duration-300 {{ $hasBadge ? 'opacity-100' : 'opacity-30 grayscale hover:opacity-70' }}">
-                        <img src="{{ asset($badge->imagem_url) }}" alt="{{ $badge->nome }}" class="w-full h-full object-cover rounded-lg aspect-square">
+                @if ($badge->tipo !== $currentType)
+                    @php $currentType = $badge->tipo; @endphp
+                    <h3 class="w-full text-lg font-semibold text-biblioteca-700 mt-6 mb-2 border-b border-biblioteca-200">
+                        {{ $this->getBadgeTypeTitle($badge->tipo) }}
+                    </h3>
+                @endif
+
+                <div x-data="{ showTooltip: false }" class="w-20 relative">
+
+                    <div
+                        @mouseenter="showTooltip = true"
+                        @mouseleave="showTooltip = false"
+                        class="relative transition-all duration-300 aspect-square rounded-lg flex items-center justify-center {{ $tierClasses }}"
+                    >
+
+                        <i class="{{ $badge->icon_class ?? 'fa-solid fa-question' }} text-4xl"></i>
 
                         @if($hasBadge)
                             <div class="absolute -top-1 -right-1 bg-green-500 text-white rounded-full h-5 w-5 flex items-center justify-center border-2 border-white shadow">
@@ -293,6 +357,21 @@ new class extends Component
                             </div>
                         @endif
                     </div>
+
+                    <div x-show="showTooltip"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-1"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-1"
+                         class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs p-2 bg-gray-900 text-white text-xs rounded-md shadow-lg pointer-events-none"
+                         x-cloak
+                    >
+                        <span class="font-bold block">{{ $badge->nome }}</span>
+                        <span class="block">{{ $badge->descricao }}</span>
+                    </div>
+
                 </div>
             @endforeach
         </div>

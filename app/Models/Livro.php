@@ -9,7 +9,17 @@ class Livro extends Model
     protected $fillable = [
         'titulo',
         'resumo',
-        'numero_downloads'
+        'numero_downloads',
+        'parsed_content'
+    ];
+
+    /**
+     * Os atributos que devem ser convertidos (cast) para tipos nativos.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'parsed_content' => 'array', // Converte a coluna JSON para array (e vice-versa)
     ];
 
     public function autores() {

@@ -66,7 +66,12 @@
                             </a>
                         </li>
                         <li class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 flex items-center space-x-2">
+
+                            <button @click="open = !open"
+                                @class([
+                                    'nav-link font-medium text-biblioteca-100 hover:text-white py-2 flex items-center space-x-2',
+                                    'active-nav' => request()->routeIs('profile')
+                                ])>
                                 @if (auth()->user()->profile_photo_path)
                                     <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="{{ auth()->user()->name }}" class="h-8 w-8 rounded-full object-cover">
                                 @else
@@ -79,6 +84,7 @@
                                 <span>{{ auth()->user()->name }}</span>
                                 <i class="bi bi-caret-down-fill ml-1"></i>
                             </button>
+
                             <ul x-show="open" @click.away="open = false" x-cloak class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 py-2">
                                 <li>
                                     <a href="{{ route('profile') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Perfil</a>
@@ -126,8 +132,20 @@
                             <i class="bi bi-search mr-2"></i>Explorar
                         </button>
                     </li>
-                    <li><a href="{{ route('minha_estante') }}" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 block"><i class="bi bi-bookmark mr-2"></i>Minha Estante</a></li>
-                    <li><a href="{{ route('clube-do-livro') }}" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 block"><i class="bi bi-people mr-2"></i> Clube do Livro</a></li>
+
+                    <li><a href="{{ route('minha_estante') }}"
+                            @class([
+                                'nav-link', 'font-medium', 'text-biblioteca-100', 'hover:text-white', 'py-2', 'block',
+                                'active-nav' => request()->routeIs('minha_estante*')
+                            ])>
+                            <i class="bi bi-bookmark mr-2"></i>Minha Estante</a></li>
+
+                    <li><a href="{{ route('clube-do-livro') }}"
+                            @class([
+                                'nav-link', 'font-medium', 'text-biblioteca-100', 'hover:text-white', 'py-2', 'block',
+                                'active-nav' => request()->routeIs('clube-do-livro*')
+                            ])>
+                            <i class="bi bi-people mr-2"></i> Clube do Livro</a></li>
 
                     <li>
                         <a href="{{ route('chat.hub') }}"
@@ -139,7 +157,13 @@
                             <livewire:notification-indicator />
                         </a>
                     </li>
-                    <li><a href="{{ route('profile') }}" class="nav-link font-medium text-biblioteca-100 hover:text-white py-2 block"><i class="bi bi-person mr-2"></i>Perfil</a></li>
+
+                    <li><a href="{{ route('profile') }}"
+                            @class([
+                                'nav-link', 'font-medium', 'text-biblioteca-100', 'hover:text-white', 'py-2', 'block',
+                                'active-nav' => request()->routeIs('profile')
+                            ])>
+                            <i class="bi bi-person mr-2"></i>Perfil</a></li>
                 </ul>
             </div>
 

@@ -1,39 +1,49 @@
 <?php
+
 namespace Database\Seeders;
+
 use App\Models\Badge;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class BadgeSeeder extends Seeder
 {
     public function run(): void
     {
+        // Usa a solução de "Reset Total" para limpar os emblemas antigos
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('user_badge')->truncate();
         Badge::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
 
         $badges = [
-            // --- Livros Finalizados ---
-            ['nome' => 'Leitor Iniciante', 'descricao' => 'Finalizou seu 1º livro.', 'imagem_url' => 'images/badges/finalizado_1.png', 'tipo' => 'livros_finalizados', 'requisito' => 1],
-            ['nome' => 'Maratonista Literário', 'descricao' => 'Finalizou 5 livros.', 'imagem_url' => 'images/badges/finalizado_5.png', 'tipo' => 'livros_finalizados', 'requisito' => 5], // NOVO
-            ['nome' => 'Leitor Ávido', 'descricao' => 'Finalizou 10 livros.', 'imagem_url' => 'images/badges/finalizado_10.png', 'tipo' => 'livros_finalizados', 'requisito' => 10],
-            ['nome' => 'Bibliotecário Honorário', 'descricao' => 'Finalizou 25 livros.', 'imagem_url' => 'images/badges/finalizado_25.png', 'tipo' => 'livros_finalizados', 'requisito' => 25], // NOVO
-            ['nome' => 'Devorador de Livros', 'descricao' => 'Finalizou 50 livros.', 'imagem_url' => 'images/badges/finalizado_50.png', 'tipo' => 'livros_finalizados', 'requisito' => 50],
-            ['nome' => 'Lenda Viva da Leitura', 'descricao' => 'Finalizou 100 livros. Uma verdadeira enciclopédia!', 'imagem_url' => 'images/badges/finalizado_100.png', 'tipo' => 'livros_finalizados', 'requisito' => 100], // NOVO
 
-            // --- Livros Favoritados ---
-            ['nome' => 'Curador', 'descricao' => 'Favoritou 5 livros.', 'imagem_url' => 'images/badges/favorito_5.png', 'tipo' => 'livros_favoritados', 'requisito' => 5],
-            ['nome' => 'Colecionador de Pérolas', 'descricao' => 'Favoritou 10 livros. Você tem bom gosto!', 'imagem_url' => 'images/badges/favorito_10.png', 'tipo' => 'livros_favoritados', 'requisito' => 10], // NOVO
-            ['nome' => 'Colecionador', 'descricao' => 'Favoritou 25 livros.', 'imagem_url' => 'images/badges/favorito_25.png', 'tipo' => 'livros_favoritados', 'requisito' => 25],
-            ['nome' => 'Guardião do Tesouro Literário', 'descricao' => 'Favoritou 50 livros. Sua coleção é um tesouro!', 'imagem_url' => 'images/badges/favorito_50.png', 'tipo' => 'livros_favoritados', 'requisito' => 50], // NOVO
+            ['nome' => 'Leitor Iniciante', 'descricao' => 'Finalizou seu 1º livro.', 'icon_class' => 'fas fa-medal', 'tipo' => 'livros_finalizados', 'requisito' => 1, 'ordem' => 10, 'tier' => 'bronze'],
+            ['nome' => 'Maratonista Literário', 'descricao' => 'Finalizou 10 livros.', 'icon_class' => 'fas fa-shoe-prints', 'tipo' => 'livros_finalizados', 'requisito' => 10, 'ordem' => 11, 'tier' => 'silver'],
+            ['nome' => 'Leitor Ávido', 'descricao' => 'Finalizou 25 livros.', 'icon_class' => 'fas fa-book-reader', 'tipo' => 'livros_finalizados', 'requisito' => 25, 'ordem' => 12, 'tier' => 'gold'],
+            ['nome' => 'Devorador de Livros', 'descricao' => 'Finalizou 50 livros.', 'icon_class' => 'fas fa-dragon', 'tipo' => 'livros_finalizados', 'requisito' => 50, 'ordem' => 13, 'tier' => 'platinum'], // MUDANÇA
+            ['nome' => 'Lenda Viva da Leitura', 'descricao' => 'Finalizou 100 livros. Uma verdadeira enciclopédia!', 'icon_class' => 'fas fa-crown', 'tipo' => 'livros_finalizados', 'requisito' => 100, 'ordem' => 14, 'tier' => 'diamond'],
 
-            // --- Comentários no Clube ---
-            ['nome' => 'Debatedor', 'descricao' => 'Fez seu 1º comentário no Clube.', 'imagem_url' => 'images/badges/comentario_1.png', 'tipo' => 'comentarios', 'requisito' => 1],
-            ['nome' => 'Voz Ativa', 'descricao' => 'Fez 5 comentários no Clube do Livro.', 'imagem_url' => 'images/badges/comentario_5.png', 'tipo' => 'comentarios', 'requisito' => 5], // NOVO
-            ['nome' => 'Pilar da Comunidade', 'descricao' => 'Fez 20 comentários.', 'imagem_url' => 'images/badges/comentario_20.png', 'tipo' => 'comentarios', 'requisito' => 20],
-            ['nome' => 'Cérebro do Clube', 'descricao' => 'Fez 50 comentários. Suas ideias enriquecem o debate!', 'imagem_url' => 'images/badges/comentario_50.png', 'tipo' => 'comentarios', 'requisito' => 50], // NOVO
 
-            // --- Antiguidade ---
-            ['nome' => 'Veterano', 'descricao' => '1 ano de conta.', 'imagem_url' => 'images/badges/antigo_1.png', 'tipo' => 'antiguidade', 'requisito' => 365],
-            ['nome' => 'Guardião do Tempo', 'descricao' => '2 anos de conta na plataforma.', 'imagem_url' => 'images/badges/antigo_2.png', 'tipo' => 'antiguidade', 'requisito' => 730], // NOVO
-            ['nome' => 'Membro Fundador', 'descricao' => '3 anos de conta.', 'imagem_url' => 'images/badges/antigo_3.png', 'tipo' => 'antiguidade', 'requisito' => 1095],
+            ['nome' => 'Bom Gosto', 'descricao' => 'Favoritou seu 1º livro.', 'icon_class' => 'far fa-heart', 'tipo' => 'livros_favoritados', 'requisito' => 1, 'ordem' => 20, 'tier' => 'bronze'],
+            ['nome' => 'Curador', 'descricao' => 'Favoritou 5 livros.', 'icon_class' => 'fas fa-heart', 'tipo' => 'livros_favoritados', 'requisito' => 5, 'ordem' => 21, 'tier' => 'silver'],
+            ['nome' => 'Colecionador', 'descricao' => 'Favoritou 10 livros.', 'icon_class' => 'far fa-gem', 'tipo' => 'livros_favoritados', 'requisito' => 10, 'ordem' => 22, 'tier' => 'gold'], // MUDANÇA
+            ['nome' => 'Caçador de Pérolas', 'descricao' => 'Favoritou 25 livros.', 'icon_class' => 'fas fa-boxes', 'tipo' => 'livros_favoritados', 'requisito' => 25, 'ordem' => 23, 'tier' => 'platinum'], // MUDANÇA
+            ['nome' => 'Guardião do Tesouro', 'descricao' => 'Favoritou 50 livros. Sua coleção é um tesouro!', 'icon_class' => 'fas fa-archive', 'tipo' => 'livros_favoritados', 'requisito' => 50, 'ordem' => 24, 'tier' => 'diamond'], // MUDANÇA
+
+
+            ['nome' => 'Debatedor', 'descricao' => 'Fez seu 1º comentário no Clube.', 'icon_class' => 'fas fa-comment-dots', 'tipo' => 'comentarios', 'requisito' => 1, 'ordem' => 30, 'tier' => 'bronze'],
+            ['nome' => 'Voz Ativa', 'descricao' => 'Fez 5 comentários no Clube do Livro.', 'icon_class' => 'fas fa-bullhorn', 'tipo' => 'comentarios', 'requisito' => 5, 'ordem' => 31, 'tier' => 'silver'],
+            ['nome' => 'Pilar da Comunidade', 'descricao' => 'Fez 20 comentários.', 'icon_class' => 'fas fa-landmark', 'tipo' => 'comentarios', 'requisito' => 20, 'ordem' => 32, 'tier' => 'gold'],
+            ['nome' => 'Cérebro do Clube', 'descricao' => 'Fez 50 comentários. Suas ideias enriquecem o debate!', 'icon_class' => 'far fa-lightbulb', 'tipo' => 'comentarios', 'requisito' => 50, 'ordem' => 33, 'tier' => 'diamond'],
+
+
+            ['nome' => 'Novato', 'descricao' => '1 dia no Vellum.', 'icon_class' => 'fas fa-door-open', 'tipo' => 'antiguidade', 'requisito' => 1, 'ordem' => 100, 'tier' => 'bronze'],
+            ['nome' => 'Residente', 'descricao' => '30 dias de conta.', 'icon_class' => 'fas fa-home', 'tipo' => 'antiguidade', 'requisito' => 30, 'ordem' => 101, 'tier' => 'silver'],
+            ['nome' => 'Veterano', 'descricao' => '1 ano (365 dias) de conta.', 'icon_class' => 'fas fa-shield-alt', 'tipo' => 'antiguidade', 'requisito' => 365, 'ordem' => 102, 'tier' => 'gold'],
+            ['nome' => 'Guardião do Tempo', 'descricao' => '2 anos (730 dias) de conta.', 'icon_class' => 'fas fa-hourglass-half', 'tipo' => 'antiguidade', 'requisito' => 730, 'ordem' => 103, 'tier' => 'platinum'], // MUDANÇA
+            ['nome' => 'Membro Fundador', 'descricao' => '3 anos (1095 dias) de conta.', 'icon_class' => 'fas fa-anchor', 'tipo' => 'antiguidade', 'requisito' => 1095, 'ordem' => 104, 'tier' => 'diamond'], // MUDANÇA
         ];
 
         foreach ($badges as $badge) {
