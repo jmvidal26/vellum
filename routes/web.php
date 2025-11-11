@@ -13,8 +13,9 @@ Route::get('/', function () {
 });
 Route::post('logout', Logout::class)->name('logout');
 
+require __DIR__.'/auth.php';
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/dashboard', Dashboard::class)
         ->name('dashboard');
@@ -32,12 +33,9 @@ Route::middleware(['auth'])->group(function () {
         ->name('livros.mostrar');
 
     Route::view('profile', 'profile')
-        ->middleware(['auth'])
         ->name('profile');
 
     Route::get('/mensagens', ChatHub::class)
-        ->middleware('auth')
         ->name('chat.hub');
 });
 
-require __DIR__.'/auth.php';
