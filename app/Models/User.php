@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\VerifyEmailCustom;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -43,12 +45,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function clubeComentarios()
-    {
-        return $this->hasMany(ClubeComentario::class);
-    }
-
-    public function inscricaoClube()
+    public function inscricaoClube(): HasOne
     {
         return $this->hasOne(ClubeMembro::class);
     }
@@ -78,5 +75,10 @@ class User extends Authenticatable
     public function comentariosClube(): HasMany
     {
         return $this->hasMany(ClubeComentario::class);
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new VerifyEmailCustom);
     }
 }
