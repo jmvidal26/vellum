@@ -8,6 +8,8 @@ use App\Models\LivroAvaliacao;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Mailer\Transport\Dsn;
 use Symfony\Component\Mailer\Transport;
+use Illuminate\Support\Facades\App;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (config('app.env') === 'production' || config('app.env') === 'local') {
+        if (App::environment('production')) {
             URL::forceScheme('https');
         }
 
