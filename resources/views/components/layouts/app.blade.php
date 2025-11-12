@@ -10,6 +10,24 @@
 
     <title>{{ $title ?? 'Vellum' }}</title>
 
+    <!-- Primary Meta Tags -->
+    <meta name="description" content="Descubra sua próxima grande leitura no Vellum. Um espaço feito para você mergulhar em novas histórias, organizar seus favoritos e compartilhar suas paixões." />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://vellumbooks.me" />
+    <meta property="og:title" content="Vellum" />
+    <meta property="og:description" content="Descubra sua próxima grande leitura no Vellum. Um espaço feito para você mergulhar em novas histórias, organizar seus favoritos e compartilhar suas paixões."/>
+    <meta property="og:image" content="{{ asset('images/vellum-social-preview.png') }}" />
+
+    <!-- X (Twitter) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://vellumbooks.me" />
+    <meta name="twitter:title" content="Vellum" />
+    <meta name="twitter:description" content="Descubra sua próxima grande leitura no Vellum. Um espaço feito para você mergulhar em novas histórias, organizar seus favoritos e compartilhar suas paixões." />
+    <meta name="twitter:image" content="{{ asset('images/vellum-social-preview.png') }}" />
+
+    <!-- Favicon -->
     <link rel="icon" href="{{ asset('imagens/logo_icon_branco.png') }}" type="image/png">
     <link rel="apple-touch-icon" href="{{ asset('imagens/logo_icon_branco.png') }}">
 

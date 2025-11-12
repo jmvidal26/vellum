@@ -77,7 +77,6 @@ new #[Layout('layouts.guest')] class extends Component
                            disabled:opacity-75 disabled:bg-biblioteca-600">
 
                 <span wire:loading.remove wire:target="login" class="flex items-center whitespace-nowrap">
-                    {{-- O 'span' fantasma --}}
                     <span class="w-5 mr-3"></span>
                     <span>{{ __('Entrar') }}</span>
                     <span class="w-5 ml-3"></span>
