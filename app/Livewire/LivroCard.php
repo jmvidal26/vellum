@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Services\CommumFunctions;
+use App\Models\LivroFavorito;
 use Livewire\Component;
 use Livewire\Attributes\On;
 
@@ -35,6 +36,9 @@ class LivroCard extends Component
                     message: $result['message'],
                     isFavorito: $this->isFavorito
                 );
+
+                $this->dispatch('favoritoAtualizado', livroId: $this->livroId);
+
             } else {
                 $this->dispatch('favorite-error',
                     message: $result['message']
@@ -68,6 +72,14 @@ class LivroCard extends Component
     public function updateFavoriteStatus()
     {
         $this->checkFavoriteStatus();
+    }
+
+    #[On('favoritoAtualizado')]
+    public function onFavoritoAtualizado($livroId)
+    {
+        if ($this->livroId == $livroId) {
+            $this->checkFavoriteStatus();
+        }
     }
 
     public function render()

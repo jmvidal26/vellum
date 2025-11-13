@@ -21,6 +21,8 @@ class LivroDetalhes extends Component
 
     public $mainGenres = [];
     public $allShelves = [];
+    public $colecoes = [];
+    public $livroColecaoIds = [];
 
     #[On('openLivroModal')]
     public function mostrarDetalhes($livroId)
@@ -67,6 +69,14 @@ class LivroDetalhes extends Component
             $this->userRating = LivroAvaliacao::where('user_id', $userId)
                 ->where('livro_id', $this->livro->id)
                 ->value('rating') ?? 0;
+
+            $user = Auth::user();
+            $this->colecoes = $user->colecoes()->orderBy('nome')->get();
+            $this->livroColecaoIds = $this->livro->colecoes()
+                ->where('user_id', $userId)
+                ->get()
+                ->pluck('id')
+                ->toArray();
         }
 
         $this->showModal = true;
@@ -119,7 +129,27 @@ class LivroDetalhes extends Component
 
         BadgeService::verificarEmblemas(Auth::user(), 'livros_favoritados');
 
-        $this->dispatch('favoritoAtualizado');
+        $this->dispatch('favoritoAtualizado', livroId: $this->livro->id);
+    }
+
+    public function toggleColecao($colecaoId)
+    {
+        if (!auth()->check() || !$this->livro) {
+            return;
+        }
+
+        $user = Auth::user();
+        $colecao = $user->colecoes()->find($colecaoId);
+
+        if ($colecao) {
+            $this->livro->colecoes()->toggle($colecaoId);
+
+            $this->livroColecaoIds = $this->livro->colecoes()
+                ->where('user_id', $user->id)
+                ->get()
+                ->pluck('id')
+                ->toArray();
+        }
     }
 
     public function closeModal()

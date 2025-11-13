@@ -62,22 +62,78 @@
                         </div>
 
                         <div class="flex-1">
-                            <button
-                                wire:click="toggleFavorite"
-                                wire:loading.attr="disabled"
-                                class="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors mb-6
+
+                            <div class="flex flex-col md:flex-row gap-4 mb-6">
+
+                                <button
+                                    wire:click="toggleFavorite"
+                                    wire:loading.attr="disabled"
+                                    class="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors
                                        {{ $isFavorito
                                             ? 'bg-red-50 text-red-700 border border-red-300 hover:bg-red-100'
                                             : 'bg-biblioteca-100 text-biblioteca-700 border border-biblioteca-200 hover:bg-biblioteca-200'
-                                       }}">
-                                <span wire:loading.remove wire:target="toggleFavorite">
-                                    @if($isFavorito) <i class="bi bi-heart-fill"></i> <span>Remover dos Favoritos</span>
-                                    @else <i class="bi bi-heart"></i> <span>Adicionar aos Favoritos</span> @endif
-                                </span>
-                                <span wire:loading wire:target="toggleFavorite">Atualizando...</span>
-                            </button>
+                                       }}"
+                                >
+                                    <span wire:loading.remove wire:target="toggleFavorite">
+                                        @if($isFavorito)
+                                            <i class="bi bi-heart-fill"></i> <span>Remover</span>
+                                        @else
+                                            <i class="bi bi-heart"></i> <span>Favoritar</span>
+                                        @endif
+                                    </span>
+                                    <span wire:loading wire:target="toggleFavorite">Atualizando...</span>
+                                </button>
 
-                            <div class="mb-6">
+                                <div x-data="{ open: false }" class="relative flex-1">
+                                    <button
+                                        @click="open = !open"
+                                        class="w-full flex items-center justify-between gap-2 px-6 py-3 rounded-lg font-medium transition-colors bg-biblioteca-100 text-biblioteca-700 border border-biblioteca-200 hover:bg-biblioteca-200"
+                                    >
+                                        <div class="flex items-center gap-2">
+                                            <i class="bi bi-bookmark-plus"></i>
+                                            <span>Coleções</span>
+                                        </div>
+                                        <i class="bi bi-chevron-down transition-transform" :class="{ 'rotate-180': open }"></i>
+                                    </button>
+
+                                    <div
+                                        x-show="open"
+                                        @click.away="open = false"
+                                        x-transition:enter="transition ease-out duration-100"
+                                        x-transition:enter-start="opacity-0 scale-95"
+                                        x-transition:enter-end="opacity-100 scale-100"
+                                        x-transition:leave="transition ease-in duration-75"
+                                        x-transition:leave-start="opacity-100 scale-100"
+                                        x-transition:leave-end="opacity-0 scale-95"
+                                        class="absolute z-10 w-full mt-2 bg-white border border-biblioteca-200 rounded-lg shadow-lg max-h-48 overflow-y-auto"
+                                        x-cloak
+                                    >
+                                        @forelse($colecoes as $colecao)
+                                            <label
+                                                wire:key="colecao-{{ $colecao->id }}"
+                                                class="flex items-center gap-3 px-4 py-3 hover:bg-biblioteca-50 cursor-pointer"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    class="rounded text-biblioteca-600 focus:ring-biblioteca-500 border-biblioteca-300"
+                                                    wire:click="toggleColecao({{ $colecao->id }})"
+                                                    {{ in_array($colecao->id, $livroColecaoIds) ? 'checked' : '' }}
+                                                >
+                                                <span class="text-biblioteca-700">{{ $colecao->nome }}</span>
+
+                                                <div wire:loading wire:target="toggleColecao({{ $colecao->id }})">
+                                                    <i class="bi bi-arrow-clockwise animate-spin text-biblioteca-500"></i>
+                                                </div>
+                                            </label>
+                                        @empty
+                                            <div class="px-4 py-3 text-biblioteca-500 text-sm">
+                                                Nenhuma pasta criada.
+                                            </div>
+                                        @endforelse
+                                    </div>
+                                </div>
+
+                            </div> <div class="mb-6">
                                 <h3 class="text-xl font-bold text-biblioteca-800 mb-2">Sua Avaliação</h3>
 
                                 <div

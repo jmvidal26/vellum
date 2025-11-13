@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\Colecao;
 
 class Livro extends Model
 {
@@ -19,7 +21,7 @@ class Livro extends Model
      * @var array
      */
     protected $casts = [
-        'parsed_content' => 'array', // Converte a coluna JSON para array (e vice-versa)
+        'parsed_content' => 'array',
     ];
 
     public function autores() {
@@ -59,5 +61,10 @@ class Livro extends Model
     {
         $this->rating = round($this->avaliacoes()->avg('rating'), 1) ?? 0.0;
         $this->save();
+    }
+
+    public function colecoes(): BelongsToMany
+    {
+        return $this->belongsToMany(Colecao::class, 'colecao_livro');
     }
 }

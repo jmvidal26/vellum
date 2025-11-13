@@ -10,6 +10,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\Colecao;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -80,5 +81,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotification(): void
     {
         $this->notify(new VerifyEmailCustom);
+    }
+
+    public function colecoes()
+    {
+        return $this->hasMany(Colecao::class);
     }
 }
