@@ -2,7 +2,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
 
-<div class="mx-auto">
+<div class="mx-auto" x-data="{ quizModalOpen: false }">
     <h2 class="text-3xl font-bold text-biblioteca-800 mb-6 text-center">
         Bem-vindo(a), {{ explode(' ', auth()->user()->name)[0] }}!
     </h2>
@@ -26,6 +26,26 @@
             <a href="{{ route('acervo') }}" class="inline-block bg-biblioteca-700 text-white px-8 py-2 rounded-lg font-medium hover:bg-biblioteca-800 transition-colors duration-300">
                 Ir
             </a>
+        </div>
+
+        <div class="bg-gradient-to-br from-biblioteca-600 to-biblioteca-800 rounded-lg p-5 text-center shadow-lg hover:shadow-xl transition-shadow md:w-72 flex flex-col justify-between">
+            <div>
+                <i class="bi bi-patch-question-fill text-4xl text-white mb-3"></i>
+                <h3 class="font-bold text-white text-xl mb-2">Quiz Literário</h3>
+                <div class="text-biblioteca-200 text-sm mb-4">
+                    <p>Desafio rápido!</p>
+                    <p class="text-lg font-bold text-white mt-1">
+                        Teste seus conhecimentos
+                    </p>
+                </div>
+            </div>
+
+            <button
+                @click="quizModalOpen = true"
+                type="button"
+                class="inline-block bg-white text-biblioteca-700 px-8 py-2 rounded-lg font-medium hover:bg-biblioteca-100 transition-colors duration-300">
+                Começar!
+            </button>
         </div>
 
         <div class="bg-biblioteca-100 rounded-lg p-5 shadow-sm md:w-72 flex flex-col justify-between">
@@ -183,11 +203,51 @@
 
     <livewire:livro-detalhes />
     <livewire:livro-texto />
+
+    <div
+        x-show="quizModalOpen"
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        x-cloak
+    >
+        <div
+            @click.away="quizModalOpen = false"
+            x-show="quizModalOpen"
+            x-transition:enter="ease-out duration-300"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="ease-in duration-200"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95"
+            class="relative w-full max-w-2xl bg-white rounded-xl shadow-lg"
+        >
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-xl font-bold text-biblioteca-800">
+                    <i class="bi bi-patch-question-fill"></i>
+                    Quiz Literário
+                </h3>
+                <button @click="quizModalOpen = false" class="text-biblioteca-500 hover:text-biblioteca-800">
+                    <i class="bi bi-x-lg text-xl"></i>
+                </button>
+            </div>
+
+            <div class="p-6 min-h-[300px]">
+
+                <div x-if="quizModalOpen">
+                    <livewire:literary-quiz wire:lazy />
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>
 
-
 <script>
-    // Opções padrão para todos os carrosséis
     var splideOptions = {
         type: 'slide',
         perPage: 7,
@@ -203,7 +263,6 @@
 
     var mountedSplides = {};
 
-    // 1. Inicializa os carrosséis FORA das abas
     document.addEventListener('DOMContentLoaded', function () {
         var standardCarousels = document.querySelectorAll('.book-carousel');
 

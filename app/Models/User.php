@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\Colecao;
+use App\Models\QuizAttempt;
+use App\Models\Badge;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -87,4 +89,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Colecao::class);
     }
+
+    public function quizAttempts()
+    {
+        return $this->hasMany(QuizAttempt::class);
+    }
+
 }

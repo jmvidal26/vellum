@@ -21,6 +21,6 @@ class DatabaseSeeder extends Seeder
 
         $this->callWith(LivroSeeder::class, ['livrosPorPagina' => $livrosPorPagina]);
         $this->callWith(ClubeLivroSeeder::class);
-        $this->callWith(BadgeSeeder::class);
+//        $this->callWith(BadgeSeeder::class);
     }
 }

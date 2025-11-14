@@ -124,6 +124,7 @@ new class extends Component
             'livros_favoritados' => 'Conquistas de Colecionador',
             'comentarios' => 'Conquistas de Comunidade',
             'antiguidade' => 'Conquistas de Veterano',
+            'quiz_especifico', 'quizzes_concluidos' => 'Conquistas de Quiz',
             default => 'Outras Conquistas',
         };
     }

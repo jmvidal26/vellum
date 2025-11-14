@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('badges', function (Blueprint $table) {
-            // Esta linha REMOVE a coluna
-            $table->dropColumn('imagem_url');
+        Schema::create('quizzes', function (Blueprint $table) {
+            $table->id();
+            $table->string('titulo');
+            $table->text('descricao')->nullable();
+            $table->boolean('ativo')->default(false);
+            $table->timestamps();
         });
     }
 
@@ -22,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('badges', function (Blueprint $table) {
-            $table->string('imagem_url')->nullable()->after('descricao');
-        });
+        Schema::dropIfExists('quizzes');
     }
 };
