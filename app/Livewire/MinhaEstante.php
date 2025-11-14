@@ -17,18 +17,63 @@ class MinhaEstante extends Component
     use WithPagination;
 
     public $busca = '';
-
     public $ordenar = 'populares';
 
     public $colecoes;
+
     public $colecaoSelecionadaId = 'favoritos';
     public $tituloPagina = 'Favoritos';
-    public $iconePagina = 'bi-heart-fill text-red-500';
+    public $iconePagina = 'fa-solid fa-heart';
+    public $corPagina = '#EF4444';
+
     public $novaPastaNome = '';
+    public $novaPastaIcone = 'fa-solid fa-bookmark';
+    public $novaPastaCor = '#6B7280';
+
     public $colecaoEditandoId = null;
     public $novoNomeColecao = '';
+    public $novoIconeColecao = 'fa-solid fa-bookmark';
+    public $novoIconeCor = '#6B7280';
+
     public $confirmandoExclusaoId = null;
     public $confirmandoExclusaoNome = '';
+
+
+    public $iconList = [
+        // --- Genéricos ---
+        'fa-solid fa-book',             // Livro (Geral)
+        'fa-solid fa-bookmark',         // Marcador (Padrão)
+        'fa-solid fa-star',             // Favoritos / Destaque
+
+        // --- Gêneros de Ficção ---
+        'fa-solid fa-heart',            // Romance
+        'fa-solid fa-wand-magic-sparkles', // Fantasia / Magia
+        'fa-solid fa-user-astronaut',   // Ficção Científica
+        'fa-solid fa-magnifying-glass', // Mistério / Suspense
+        'fa-solid fa-ghost',            // Terror
+        'fa-solid fa-scroll',           // Clássicos / Poesia
+
+        // --- Gêneros de Não-Ficção ---
+        'fa-solid fa-landmark',         // História
+        'fa-solid fa-user-pen',         // Biografia / Memórias
+        'fa-solid fa-brain',            // Autoajuda / Psicologia
+        'fa-solid fa-flask-vial',       // Ciência
+        'fa-solid fa-globe',            // Viagem / Geografia
+        'fa-solid fa-utensils',         // Culinária
+        'fa-solid fa-palette',          // Arte / Design
+        'fa-solid fa-puzzle-piece',     // Infantil
+    ];
+    public $colorList = [
+        '#6B7280', // Gray-500
+        '#EF4444', // Red-500
+        '#F97316', // Orange-500
+        '#EAB308', // Yellow-500
+        '#22C55E', // Green-500
+        '#3B82F6', // Blue-500
+        '#6366F1', // Indigo-500
+        '#A855F7', // Purple-500
+        '#EC4899', // Pink-500
+    ];
 
     public function mount()
     {
@@ -38,55 +83,55 @@ class MinhaEstante extends Component
     public function criarNovaColecao()
     {
         $this->validate([
-            'novaPastaNome' => 'required|string|min:3|max:100'
+            'novaPastaNome' => 'required|string|min:3|max:100',
+            'novaPastaIcone' => 'required|string|in:' . implode(',', $this->iconList),
+            'novaPastaCor' => 'required|string|in:' . implode(',', $this->colorList),
         ]);
 
         Auth::user()->colecoes()->create([
-            'nome' => $this->novaPastaNome
+            'nome' => $this->novaPastaNome,
+            'icone' => $this->novaPastaIcone,
+            'icone_cor' => $this->novaPastaCor,
         ]);
 
-        $this->reset('novaPastaNome');
+        $this->reset('novaPastaNome', 'novaPastaIcone', 'novaPastaCor');
+        $this->novaPastaIcone = 'fa-solid fa-bookmark';
+        $this->novaPastaCor = '#6B7280';
 
         $this->colecoes = Auth::user()->colecoes()->orderBy('ordem')->get();
-
         $this->dispatch('coleacao-criada');
-
-    }
-
-    public function atualizarOrdemColecoes($items)
-    {
-        foreach ($items as $item) {
-            Colecao::where('id', $item['value'])
-                ->where('user_id', Auth::id())
-                ->update(['ordem' => $item['order']]);
-        }
-
-        $this->colecoes = Auth::user()->colecoes()->orderBy('ordem')->get();
     }
 
     public function editarColecao($id)
     {
-        $this->colecaoEditandoId = $id;
-        $this->novoNomeColecao = Colecao::find($id)->nome ?? '';
+        $colecao = Colecao::find($id);
+
+        if ($colecao) {
+            $this->colecaoEditandoId = $id;
+            $this->novoNomeColecao = $colecao->nome;
+            $this->novoIconeColecao = $colecao->icone ?? 'fa-solid fa-bookmark';
+            $this->novoIconeCor = $colecao->icone_cor ?? '#6B7280';
+        }
     }
 
     public function salvarEdicaoColecao()
     {
         $this->validate([
             'novoNomeColecao' => 'required|string|min:3|max:100',
+            'novoIconeColecao' => 'required|string|in:' . implode(',', $this->iconList),
+            'novoIconeCor' => 'required|string|in:' . implode(',', $this->colorList),
         ]);
 
         $colecao = Colecao::find($this->colecaoEditandoId);
         if ($colecao && $colecao->user_id === Auth::id()) {
-
-            $colecao->update(['nome' => $this->novoNomeColecao]);
-
-            if ($this->colecaoSelecionadaId == $this->colecaoEditandoId) {
-                $this->tituloPagina = $this->novoNomeColecao;
-            }
+            $colecao->update([
+                'nome' => $this->novoNomeColecao,
+                'icone' => $this->novoIconeColecao,
+                'icone_cor' => $this->novoIconeCor,
+            ]);
         }
 
-        $this->reset(['colecaoEditandoId', 'novoNomeColecao']);
+        $this->reset(['colecaoEditandoId', 'novoNomeColecao', 'novoIconeColecao', 'novoIconeCor']);
         $this->colecoes = Auth::user()->colecoes()->orderBy('ordem')->get();
     }
 
@@ -115,11 +160,12 @@ class MinhaEstante extends Component
         $this->reset(['confirmandoExclusaoId', 'confirmandoExclusaoNome']);
     }
 
-    public function selecionarColecao($id, $titulo, $icone)
+    public function selecionarColecao($id, $titulo, $icone, $cor)
     {
         $this->colecaoSelecionadaId = $id;
         $this->tituloPagina = $titulo;
         $this->iconePagina = $icone;
+        $this->corPagina = $cor;
 
         usleep(100000);
 

@@ -11,7 +11,17 @@ class Colecao extends Model
 
     protected $table = 'colecoes';
 
-    protected $fillable = ['nome', 'user_id'];
+    /**
+     * Os atributos que podem ser atribuídos em massa.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'nome',
+        'user_id',
+        'icone',
+        'icone_cor'
+    ];
 
     public function user()
     {

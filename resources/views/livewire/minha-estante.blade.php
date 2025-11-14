@@ -30,7 +30,9 @@
 
         <aside class="md:w-1/4 lg:w-1/5 flex-shrink-0">
 
-            <div x-data="{ criando: false, novaPastaNomeLocal: '' }" x-on:coleacao-criada.window="criando = false; novaPastaNomeLocal = ''">
+            <div
+                x-data="{ criando: false, novaPastaNomeLocal: '', novaPastaIconeLocal: 'fa-solid fa-bookmark' }"
+                x-on:coleacao-criada.window="criando = false; novaPastaNomeLocal = ''; novaPastaIconeLocal = 'fa-solid fa-bookmark'">
                 <div class="flex justify-between items-center mb-4 px-3">
                     <h3 class="text-lg font-bold text-biblioteca-800">Minhas Pastas</h3>
                     <button @click="criando = !criando"
@@ -44,25 +46,48 @@
                     x-show="criando"
                     x-transition
                     x-cloak
-                    class="mb-4 px-3 space-y-2"
-                    @submit.prevent="
-            // seta a propriedade Livewire com o valor local, chama o método e deixa o servidor responder
-            $wire.set('novaPastaNome', novaPastaNomeLocal).then(() => $wire.call('criarNovaColecao'))
-        "
+                    class="mb-4 px-3 space-y-3" @submit.prevent="
+                        $wire.set('novaPastaNome', novaPastaNomeLocal);
+                        $wire.set('novaPastaIcone', novaPastaIconeLocal);
+                        $wire.set('novaPastaCor', $wire.novaPastaCor); // Alpine não é necessário aqui, $wire já tem
+                        $wire.call('criarNovaColecao');
+                    "
                 >
-                    <input
-                        type="text"
-                        x-model="novaPastaNomeLocal"
-                        placeholder="Nome da pasta..."
-                        class="w-full text-sm rounded-md border-biblioteca-300 focus:ring-biblioteca-500"
-                        aria-label="Nome da nova pasta"
-                    >
+                    <input type="text" x-model="novaPastaNomeLocal" placeholder="Nome da pasta..."
+                           class="w-full text-sm rounded-md border-biblioteca-300 focus:ring-biblioteca-500"
+                           aria-label="Nome da nova pasta">
 
-                    <button
-                        type="submit"
-                        :disabled="novaPastaNomeLocal.length < 3"
-                        class="w-full text-sm text-center bg-biblioteca-700 text-white rounded-md p-2 hover:bg-biblioteca-800 disabled:opacity-50"
-                    >
+                    <div class="pt-1">
+                        <label class="block text-sm font-medium text-biblioteca-700 mb-1">Ícone</label>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($iconList as $icon)
+                                <button type="button"
+                                        @click="novaPastaIconeLocal = '{{ $icon }}'"
+                                        :class="{ 'ring-2 ring-biblioteca-500 ring-offset-1': novaPastaIconeLocal === '{{ $icon }}' }"
+                                        class="p-2 rounded-md border border-biblioteca-300 bg-white text-biblioteca-700 hover:bg-biblioteca-50 focus:outline-none">
+                                    <i class="{{ $icon }} text-lg"></i>
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="pt-1">
+                        <label class="block text-sm font-medium text-biblioteca-700 mb-1">Cor</label>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($colorList as $cor)
+                                <button type="button"
+                                        wire:click.prevent="$set('novaPastaCor', '{{ $cor }}')"
+                                        class="w-7 h-7 rounded-full border border-gray-200 focus:outline-none
+                                        {{ $novaPastaCor === $cor ? 'ring-2 ring-biblioteca-500 ring-offset-1' : '' }}"
+                                        style="background-color: {{ $cor }}">
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            :disabled="novaPastaNomeLocal.length < 3"
+                            class="w-full text-sm text-center bg-biblioteca-700 text-white rounded-md p-2 hover:bg-biblioteca-800 disabled:opacity-50">
                         <span wire:loading.remove wire:target="criarNovaColecao">Criar Pasta</span>
                         <span wire:loading wire:target="criarNovaColecao">Criando...</span>
                     </button>
@@ -72,22 +97,22 @@
 
             <nav class="space-y-1">
                 <button
-                    wire:click="selecionarColecao('favoritos', 'Favoritos', 'bi-heart-fill text-red-500')"
+                    wire:click="selecionarColecao('favoritos', 'Favoritos', 'fa-solid fa-heart', '#EF4444')"
                     class="w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-left
                         {{ $colecaoSelecionadaId == 'favoritos'
                             ? 'bg-biblioteca-100 text-biblioteca-800'
                             : 'text-biblioteca-600 hover:bg-biblioteca-50' }}">
-                    <i class="bi bi-heart-fill text-red-500 text-lg"></i>
+                    <i class="fa-solid fa-heart text-lg" style="color: #EF4444"></i>
                     <span>Favoritos</span>
                 </button>
 
                 <button
-                    wire:click="selecionarColecao('em_andamento', 'Em Andamento', 'bi-book-half text-blue-600')"
+                    wire:click="selecionarColecao('em_andamento', 'Em Andamento', 'fa-solid fa-book-open-reader', '#3B82F6')"
                     class="w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-left
                         {{ $colecaoSelecionadaId == 'em_andamento'
                             ? 'bg-biblioteca-100 text-biblioteca-800'
                             : 'text-biblioteca-600 hover:bg-biblioteca-50' }}">
-                    <i class="bi bi-book-half text-blue-600 text-lg"></i>
+                    <i class="fa-solid fa-book-open-reader text-lg" style="color: #3B82F6"></i>
                     <span>Em Andamento</span>
                 </button>
 
@@ -100,25 +125,21 @@
                     x-data="{ aberto: null }"
                 >
                     @foreach($colecoes as $colecao)
-                        <div
-                            wire:key="colecao-{{ $colecao->id }}"
-                            wire:sort.item="{{ $colecao->id }}"
-                            class="relative flex items-center ..."
-                        >
+                        <div wire:key="colecao-{{ $colecao->id }}" wire:sort.item="{{ $colecao->id }}" class="relative flex items-center ...">
                             <div wire:sort.handle class="px-2 cursor-grab active:cursor-grabbing">
                                 <i class="bi bi-grip-vertical text-biblioteca-400"></i>
                             </div>
 
                             <button
                                 type="button"
-                                wire:click="selecionarColecao({{ $colecao->id }}, '{{ addslashes($colecao->nome) }}', 'bi-bookmark-fill text-biblioteca-600')"
+                                wire:click="selecionarColecao({{ $colecao->id }}, '{{ addslashes($colecao->nome) }}', '{{ $colecao->icone ?? 'fa-solid fa-bookmark' }}', '{{ $colecao->icone_cor ?? '#6B7280' }}')"
                                 class="flex-1 text-left px-3 py-2 truncate
-                                    {{ $colecaoSelecionadaId == $colecao->id
-                                        ? 'bg-biblioteca-100 text-biblioteca-800'
-                                        : 'text-biblioteca-600' }}"
-                                title="{{ $colecao->nome }}"
-                            >
-                                <i class="bi bi-bookmark-fill text-biblioteca-600 text-lg mr-2"></i>
+                                {{ $colecaoSelecionadaId == $colecao->id
+                                    ? 'bg-biblioteca-100 text-biblioteca-800'
+                                    : 'text-biblioteca-600' }}"
+                                title="{{ $colecao->nome }}">
+                                <i class="{{ $colecao->icone ?? 'fa-solid fa-bookmark' }} text-lg mr-2"
+                                   style="color: {{ $colecao->icone_cor ?? '#6B7280' }}"></i>
                                 <span>{{ $colecao->nome }}</span>
                             </button>
 
@@ -126,8 +147,7 @@
                                 <button
                                     @click.stop="aberto === {{ $colecao->id }} ? aberto = null : aberto = {{ $colecao->id }}"
                                     class="p-2 rounded hover:bg-biblioteca-200 transition"
-                                    title="Mais ações"
-                                >
+                                    title="Mais ações">
                                     <i class="bi bi-three-dots-vertical text-biblioteca-600"></i>
                                 </button>
 
@@ -166,13 +186,41 @@
                 <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" wire:key="modal-editar-colecao">
                     <div class="bg-white rounded-xl shadow-lg p-6 w-96">
                         <h2 class="text-lg font-semibold mb-4">Editar Coleção</h2>
-                        <input type="text"
-                               wire:model="novoNomeColecao"
-                               class="w-full border rounded-md p-2 mb-4 focus:ring-biblioteca-500"
-                               placeholder="Novo nome da coleção">
-                        <div class="flex justify-end gap-2">
-                            <button wire:click="$set('colecaoEditandoId', null)"
-                                    class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Cancelar</button>
+
+                        <div class="space-y-4"> <input type="text"
+                                                       wire:model="novoNomeColecao"
+                                                       class="w-full border rounded-md p-2 focus:ring-biblioteca-500"
+                                                       placeholder="Novo nome da coleção">
+
+                            <div class="mt-0"> <label class="block text-sm font-medium text-biblioteca-700 mb-2">Ícone</label>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach($iconList as $icon)
+                                        <button type="button"
+                                                wire:click="$set('novoIconeColecao', '{{ $icon }}')"
+                                                class="p-2 rounded-md border border-biblioteca-300 bg-white text-biblioteca-700 hover:bg-biblioteca-50 focus:outline-none
+                                                {{ $novoIconeColecao === $icon ? 'ring-2 ring-biblioteca-500 ring-offset-1' : '' }}">
+                                            <i class="{{ $icon }} text-lg"></i>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-biblioteca-700 mb-2">Cor</label>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach($colorList as $cor)
+                                        <button type="button"
+                                                wire:click="$set('novoIconeCor', '{{ $cor }}')"
+                                                class="w-7 h-7 rounded-full border border-gray-200 focus:outline-none
+                                                {{ $novoIconeCor === $cor ? 'ring-2 ring-biblioteca-500 ring-offset-1' : '' }}"
+                                                style="background-color: {{ $cor }}">
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 mt-6"> <button wire:click="$set('colecaoEditandoId', null)"
+                                                                          class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Cancelar</button>
                             <button wire:click="salvarEdicaoColecao"
                                     class="px-4 py-2 rounded-md bg-biblioteca-700 text-white hover:bg-biblioteca-800">Salvar</button>
                         </div>
@@ -227,7 +275,7 @@
             </div>
 
             <div class="flex items-center gap-2 mb-4">
-                <i class="bi {{ $iconePagina }} text-xl"></i>
+                <i class="{{ $iconePagina }} text-xl" style="color: {{ $corPagina }}"></i>
                 <h1 class="text-2xl font-semibold text-biblioteca-800">{{ $tituloPagina }}</h1>
             </div>
 
