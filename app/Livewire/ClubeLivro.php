@@ -100,7 +100,7 @@ class ClubeLivro extends Component
     public function carregarComentarios()
     {
         if (!$this->sessaoAtiva) {
-            $this->comentarios = collect();
+            $this->comentarios = new \Illuminate\Database\Eloquent\Collection();
             return;
         }
 

@@ -18,9 +18,9 @@ class DatabaseSeeder extends Seeder
         $apiLivros = app(ApiLivrosService::class);
 
         $livrosPorPagina = iterator_to_array($apiLivros->buscarPaginas('books', 2));
-
+        $this->callWith(BadgeSeeder::class);
+        $this->callWith(QuizSeeder::class);
         $this->callWith(LivroSeeder::class, ['livrosPorPagina' => $livrosPorPagina]);
         $this->callWith(ClubeLivroSeeder::class);
-//        $this->callWith(BadgeSeeder::class);
     }
 }

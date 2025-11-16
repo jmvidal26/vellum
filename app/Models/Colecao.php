@@ -20,7 +20,8 @@ class Colecao extends Model
         'nome',
         'user_id',
         'icone',
-        'icone_cor'
+        'icone_cor',
+        'ordem'
     ];
 
     public function user()
