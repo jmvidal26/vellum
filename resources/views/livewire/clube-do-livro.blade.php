@@ -153,7 +153,7 @@
                             });
                         "
                     >
-                        @forelse($comentarios ?? [] as $comentario)
+                        @forelse($this->comentarios ?? [] as $comentario)
                             <div class="flex items-start gap-4">
                                 <span class="block h-12 w-12 rounded-full bg-biblioteca-100 overflow-hidden">
                                     @if ($comentario->user->profile_photo_path)
@@ -195,10 +195,10 @@
                 <div class="bg-white rounded-xl shadow-md border border-biblioteca-200 p-5">
                     <h3 class="text-xl font-bold text-biblioteca-800 mb-4 flex items-center gap-2">
                         <i class="bi bi-people-fill"></i>
-                        Membros ({{ $membros?->count() ?? 0 }})
+                        Membros ({{ $this->membros->count() ?? 0 }})
                     </h3>
                     <div class="flex flex-wrap gap-2">
-                        @foreach($membros?->take(12) ?? [] as $membro)
+                        @foreach($this->membros->take(12) ?? [] as $membro)
                             @php $isCurrentUser = $membro->id === auth()->id(); @endphp
 
                             <button
@@ -226,10 +226,10 @@
                             </button>
                         @endforeach
 
-                        @if(($membros?->count() ?? 0) > 12)
+                        @if(($this->membros->count() ?? 0) > 12)
                             <div class="w-10 h-10 rounded-full flex items-center justify-center bg-biblioteca-100 text-biblioteca-600 font-semibold"
-                                 title="e mais {{ $membros->count() - 12 }}...">
-                                +{{ $membros->count() - 12 }}
+                                 title="e mais {{ $this->membros->count() - 12 }}...">
+                                +{{ $this->membros->count() - 12 }}
                             </div>
                         @endif
                     </div>
@@ -241,7 +241,7 @@
                         Livros Anteriores
                     </h3>
                     <div class="space-y-4">
-                        @forelse($sessoesAnteriores ?? [] as $sessao)
+                        @forelse($this->sessoesAnteriores ?? [] as $sessao)
                             <a href="#" class="flex items-center gap-3 group">
                                 <img src="{{ $imagemUrl ?? 'https://placehold.co/50x75/c08550/FFFFFF?text=Capa' }}"
                                      alt="Capa {{ $sessao->livro->titulo }}"
@@ -274,7 +274,7 @@
             <section class="splide book-carousel" x-ref="splide" aria-labelledby="downloads-title">
                 <div class="splide__track pt-4">
                     <ul class="splide__list">
-                        @foreach($livros ?? [] as $livro)
+                        @foreach($this->livros ?? [] as $livro)
                             <livewire:livro-card
                                 :livro="$livro"
                                 :key="$livro->id"
