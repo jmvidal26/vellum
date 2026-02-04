@@ -15,7 +15,7 @@ Route::post('logout', Logout::class)->name('logout');
 
 require __DIR__.'/auth.php';
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', Dashboard::class)
         ->name('dashboard');
